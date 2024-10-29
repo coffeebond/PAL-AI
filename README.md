@@ -1,4 +1,4 @@
------- Instructions ------
+# ------ Instructions ------
 
 ## Options for the input
 * `-d`: Input file with ID and tail-length difference as target values
