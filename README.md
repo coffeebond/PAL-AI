@@ -9,7 +9,7 @@
 * `-md`: Model file for predictions in h5 format
 * `-n`: Choice of neural network for the model (default: `inn`)
 * `-p`: A text file with global and INN parameters (each parameter as a line and use ": " as the delimiter)
-* `-o`: Foler for output files (default: `INN_out`)
+* `-o`: Folder for output files (default: `INN_out`)
 * `-l`: Maximal length of sequence (from 3'-end) used as the input
 * `-t`: The function to transform target values, choice of `none` (default), `diff`, `log`, `sqrt`, `box-cox`, or `yeo-johnson`
 * `-v`: Verbose for the output during the run of this script (default: `0`)
