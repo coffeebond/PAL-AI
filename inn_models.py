@@ -168,9 +168,9 @@ def resnet_model(input_params):
 	model = keras.Model(inputs = inn_input, outputs = inn_output)
 
 	if params['optimizer'] == 'adam':
-		model.compile(optimizer=keras.optimizers.Adam(learning_rate = params['learning_rate']), loss= params['loss'], metrics=[params['metrics'], my_metric]) #[params['metrics']])#, 
+		model.compile(optimizer=keras.optimizers.Adam(learning_rate = params['learning_rate']), loss= params['loss'], metrics=[params['metrics'], custom_metric]) #[params['metrics']])#, 
 	else:
-		model.compile(optimizer=keras.optimizers.SGD(learning_rate = params['learning_rate'], momentum = 0.9, nesterov = True, decay = 1e-6), loss = params['loss'], metrics=[params['metrics'], my_metric]) #[params['metrics']])#,
+		model.compile(optimizer=keras.optimizers.SGD(learning_rate = params['learning_rate'], momentum = 0.9, nesterov = True, decay = 1e-6), loss = params['loss'], metrics=[params['metrics'], custom_metric]) #[params['metrics']])#,
 	
 	return(model)
 
@@ -272,9 +272,9 @@ def inn_model(input_params):
 		model = keras.Model(inputs = inn_input, outputs = inn_output)
 
 	if params['optimizer'] == 'adam':
-		model.compile(optimizer=keras.optimizers.Adam(learning_rate = params['learning_rate']), loss=params['loss'], metrics=[params['metrics'], my_metric]) #[params['metrics']])#, 
+		model.compile(optimizer=keras.optimizers.Adam(learning_rate = params['learning_rate']), loss=params['loss'], metrics=[params['metrics'], custom_metric]) #[params['metrics']])#, 
 	else:
-		model.compile(optimizer=keras.optimizers.SGD(learning_rate = params['learning_rate'], momentum = 0.9, nesterov = True, decay = 1e-6), loss=params['loss'], metrics=[params['metrics'], my_metric]) #[params['metrics']])#, 
+		model.compile(optimizer=keras.optimizers.SGD(learning_rate = params['learning_rate'], momentum = 0.9, nesterov = True, decay = 1e-6), loss=params['loss'], metrics=[params['metrics'], custom_metric]) #[params['metrics']])#, 
 
 	return(model)
 
@@ -361,8 +361,8 @@ def cinn_model(input_params):
 		model = keras.Model(inputs = inn_input, outputs = inn_output)
 
 	if params['optimizer'] == 'adam':
-		model.compile(optimizer=keras.optimizers.Adam(learning_rate = params['learning_rate']), loss=params['loss'], metrics=[params['metrics'], my_metric]) #[params['metrics']])#, 
+		model.compile(optimizer=keras.optimizers.Adam(learning_rate = params['learning_rate']), loss=params['loss'], metrics=[params['metrics'], custom_metric]) #[params['metrics']])#, 
 	else:
-		model.compile(optimizer=keras.optimizers.SGD(learning_rate = params['learning_rate'], momentum = 0.9, nesterov = True, decay = 1e-6), loss=params['loss'], metrics=[params['metrics'], my_metric]) #[params['metrics']])#, 
+		model.compile(optimizer=keras.optimizers.SGD(learning_rate = params['learning_rate'], momentum = 0.9, nesterov = True, decay = 1e-6), loss=params['loss'], metrics=[params['metrics'], custom_metric]) #[params['metrics']])#, 
 
 	return(model)

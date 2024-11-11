@@ -4,6 +4,9 @@ import pandas as pd
 import tensorflow as tf
 import keras.backend as K
 import inn_models
+import inn_utils
+
+from inn_utils import timer, pwrite, make_log_file, fasta_id_parser, fasta_to_dict, encode_seq, target_transform, loss_plot, scatter_plot, update_dict_from_file
 
 from time import time
 from time import sleep
@@ -102,97 +105,6 @@ inn_params_lst = [
 	Categorical(categories=[10], name = 'epochs')
 ]
 
-
-
-def timer(): # calculate runtime
-	temp = str(time()-t_start).split('.')[0]
-	temp =  '\t' + temp + 's passed...' + '\t' + str(datetime.now())
-	return temp
-
-def pwrite(f, text):
-	f.write(text + '\n')
-	print(text)
-
-def make_log_file(filename, p_params = False, p_vars = False):
-	f_log = open(filename, 'w')
-	if isinstance(p_params, dict):
-		pwrite(f_log, 'Updated global parameters:')
-		for param in p_params:
-			pwrite(f_log, param + ': ' + str(p_params[param]))
-	if isinstance(p_vars, dict):
-		pwrite(f_log, '\nInput arguments:')
-		for var in p_vars:
-			pwrite(f_log, var + ': ' + str(p_vars[var]))
-		pwrite(f_log, '\n')	
-	return(f_log)
-
-def fasta_id_parser(line, sep = '\t'):
-	lst = line.rstrip().lstrip('>').split(sep)
-	return(lst)
-
-def fasta_to_dict(file, len_min = 0, string_filter = None):
-	temp_dict = {}
-	temp_seq = ''
-	current_id = None
-	with open(file, 'r') as f:
-		flag_seq_append = False
-		while(True):
-			line = f.readline()
-			if line:
-				if line[0] == '>':
-					if current_id is not None:
-						temp_dict[current_id] = temp_seq
-					if (string_filter is None) or (string_filter not in line):
-						current_id = fasta_id_parser(line, sep = '__', pos = 0)
-						temp_seq = ''
-						if current_id in temp_dict:
-							sys.exit('Error! Input file (' + file + ') has non-unique IDs!')
-					else:
-						current_id = None
-				else:
-					if current_id is not None:
-						temp_seq = temp_seq + line.strip()
-			else:
-				# last entry
-				if current_id is not None:
-					temp_dict[current_id] = temp_seq 
-				break
-	return(temp_dict)
-
-def l2n(seq_len, n_kernal, n_pool_size, size_limit, n=0):
-	# this helper function determines the number of repeated convolution-maxpooling layers from a given sequence length and output size limit
-	if math.floor((seq_len - n_kernal + 1)/n_pool_size) <= size_limit:
-		return(n)
-	if n == 0:
-		seq_len = seq_len - n_kernal + 1
-	return(l2n(math.floor((seq_len - n_kernal + 1)/n_pool_size), n_kernal, n_pool_size, size_limit, n + 1))
-
-def outer_concatenate(a1, a2, half_mask = False):
-	# perform an "outer concatenation" of two 2D arrays to get a 3D array
-	assert len(a1.shape) == 2 and len(a2.shape) == 2, 'Input arrays for "outer_concatenate" must be 2D!'
-	out_array = np.zeros((a1.shape[0], a2.shape[0], a1.shape[1] * a2.shape[1]))
-	for i in range(a1.shape[0]):
-		for j in range(a2.shape[0]):
-			if (not half_mask) or i <= j: 
-				out_array[i, j, :] = np.outer(a1[i,:], a2[j,:]).flatten()
-	return(out_array)
-
-def encode_seq(seq, half_mask = False):
-	# convert a DNA sequence to one-hot encoding matrix
-	mat = np.zeros((len(seq), 4))
-	for i in range(len(seq)):
-		if seq[i] == 'A':
-			mat[i,0] = 1.0
-		elif seq[i] == 'C':
-			mat[i,1] = 1.0
-		elif seq[i] == 'G':
-			mat[i,2] = 1.0
-		elif seq[i] == 'T' or seq[i] == 'U':
-			mat[i,3] = 1.0
-	if params_global['n_dimension'] == 3:
-		mat = outer_concatenate(mat, mat, half_mask = half_mask)
-	return(mat) 
-
 def process_seqs(line_lst):
 	# convert sequences to features as X values and tail length to Y values
 	X_mat_lst = []
@@ -246,7 +158,7 @@ def process_seqs(line_lst):
 					# encode the sequence
 					seq = seq.upper().replace('U', 'T')
 					if re.search('(^[ACGTNU]+$)',seq):
-						seq_mat = encode_seq(seq, half_mask = True)
+						seq_mat = encode_seq(seq, n_dim = params_global['n_dimension'], half_mask = True)
 
 						if params_global['n_dimension'] == 3:
 							if args.f:
@@ -316,58 +228,6 @@ def process_seqs(line_lst):
 	else:
 		return(None)
 
-def target_transform(x, method = 'none', inverse = False, offset = 0, tf = None):
-	# x can be either a list of a 2-d array
-	# a function to transform or inverse-transform target values
-	# it returns the transformed values and the transformer (None value if not applicable)
-	# if method is 'boxcox' or 'yeo-johnson' and 'inverse' is False, it fits and transforms if 'tf' is not provided, or it only transforms if 'tf' is provided 
-	# if method is 'boxcox' or 'yeo-johnson' and 'inverse' is True, a fitted transformer must be provided to 'tf'
-	if len(np.asarray(x).shape) == 1:
-		flag_1d = True
-	else:
-		flag_1d = False
-	if method == 'diff':
-		if inverse:
-			x_trans = x + params_global['tl_cons']
-		else:
-			x_trans = x - params_global['tl_cons']
-	elif method == 'log':
-		if inverse:
-			x_trans = np.expm1(x) - offset
-		else:
-			x_trans = np.log1p(x + offset)
-	elif method == 'sqrt':
-		if inverse:
-			x_trans = np.power(x,2) - offset
-		else:
-			x_trans = np.sqrt(x + offset)
-	elif method == 'box-cox' or method == 'yeo-johnson':
-		if method == 'box-cox':
-			pt = PowerTransformer(method = 'box-cox')
-		else:
-			pt = PowerTransformer(method = 'yeo-johnson')
-		if inverse:
-			pt = tf
-			if flag_1d:
-				x_trans = (pt.inverse_transform(np.asarray(x).reshape((-1,1)))).ravel() - offset
-			else:
-				x_trans = pt.inverse_transform(x) - offset
-		else:
-			if flag_1d:
-				x = np.asarray(x).reshape((-1,1))
-			if tf != None: # if the transformer is provided, use it for transformation
-				pt = tf
-			else:
-				pt.fit(x + offset)
-				tf = pt
-			if flag_1d:
-				x_trans = (pt.transform(x + offset)).ravel()
-			else:
-				x_trans = pt.transform(x + offset)
-	else:
-		x_trans = x
-	return(x_trans, tf)
-
 def model_inn(x_train, y_train, x_test, y_test, params, best_model = False, early_stop = False):
 	# make sure input shape is correct
 	if params['flag_initial_tl']:
@@ -391,16 +251,16 @@ def model_inn(x_train, y_train, x_test, y_test, params, best_model = False, earl
 		params_global['flag_print_model'] = False
 
 	# monitor metric for the best model
-	callbacks = [keras.callbacks.ModelCheckpoint(args.o + 'Models/' + idf + '_callback_best_model.h5', monitor='val_loss', mode='min', save_best_only=True)]
+	callbacks = [keras.callbacks.ModelCheckpoint(out_folder + 'Models/' + idf + '_callback_best_model.h5', monitor='val_loss', mode='min', save_best_only=True)]
 	if early_stop:
-		callbacks.append(keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', patience=10))
+		callbacks.append(keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', patience=5))
 
 	out = model.fit(x = x_train, y = y_train, batch_size = params['batch_size'], epochs = params['epochs'], verbose = args.v, shuffle = True, 
 		callbacks = callbacks, validation_data=(x_test, y_test))
 
 	if best_model:
 		pwrite(f_log, 'Return the best model...')
-		model = keras.models.load_model(args.o + 'Models/' + idf + '_callback_best_model.h5', custom_objects={'custom_metric': inn_models.custom_metric})
+		model = keras.models.load_model(out_folder + 'Models/' + idf + '_callback_best_model.h5', custom_objects={'custom_metric': inn_models.custom_metric})
 	else:
 		pwrite(f_log, '\nReturn the final model...')
 
@@ -439,44 +299,48 @@ def fitness(n_Conv1D_filter, n_Conv1D_kernal, n_Conv1D_MaxPool_block,
 
 	global opti_count
 	opti_count += 1
-	pwrite(f_log, '\nTry a new set of hyperparameters for model ' + str(opti_count) + ' out of ' + str(args.op) + '...' + timer())
+	
+	pwrite(f_log, '\nTry a new set of hyperparameters for model ' + str(opti_count) + ' out of ' + str(args.op) + '...' + timer(t_start))
 	out, model, params = model_inn(X_train, Y_train_trans, X_test, Y_test_trans, params_dict, best_model = True, early_stop = True)
 	Y_pred_trans = model.predict(X_test).ravel()
+
+	# transform values back
+	Y = target_transform(Y_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
 	Y_pred = target_transform(Y_pred_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
-	r2 = stats.linregress(Y_test_trans,Y_pred_trans).rvalue ** 2
-	pwrite(f_log, 'R-squred: %.3f' % (r2) + '\n')
+	
+	# make a scatter plot
+	scatter_plot(Y, Y_pred, fn = out_folder + 'Scatter_plots/' + 'Optimization_current_model_predicted_vs_measured_scatter_plot.png')
+
+	# make train-test loss line plot
+	loss_plot(train = out.history['loss'], test = out.history['val_loss'], 
+		fn = out_folder + 'Loss_plots/' + 'Optimization_current_model_loss_over_epoch_line_plot.png')
+	loss_plot(train = out.history['custom_metric'], test = out.history['val_custom_metric'], 
+		fn = out_folder + 'Loss_plots/' + 'Optimization_current_model_metric_over_epoch_line_plot.png')
+
+	r2 = stats.linregress(Y,Y_pred).rvalue ** 2	
 	global best_r2
 	if r2 > best_r2:
-		model.save(args.o + 'Models/' + idf + '_global_best_model.h5')
+		model.save(out_folder + 'Models/' + idf + '_global_best_model.h5')
 		best_r2 = r2
 
-		# write out predictions
-		out_pred = args.o + idf + '_test_prediction_results.txt'
-		with open(out_pred, 'w') as f_res:
-			f_res.write('id\ty\ty_pred\ty_trans\ty_pred_trans\tlabel\n')
-			for k in range(Y_test_pd.shape[0]):
-				f_res.write('\t'.join(list(map(str, [Y_test_pd['id'].to_numpy()[k], Y_test[k], Y_pred[k], 
-					Y_test_trans[k], Y_pred_trans[k], Y_test_pd['label'].to_numpy()[k]]))) + '\n')
+		# scatter plot
+		scatter_plot(Y,Y_pred, fn = out_folder + 'Scatter_plots/' + 'Optimization_best_model_predicted_vs_measured_scatter_plot.png')
 
-		if os.path.exists('Scatter_plot.R'):
-			command = 'Rscript Scatter_plot.R ' + out_pred
-			subprocess.Popen(shlex.split(command)).communicate()
+		# make train-test loss line plot
+		loss_plot(train = out.history['loss'], test = out.history['val_loss'], 
+			fn = out_folder + 'Loss_plots/' + 'Optimization_best_model_loss_over_epoch_line_plot.png')
+		loss_plot(train = out.history['custom_metric'], test = out.history['val_custom_metric'], 
+			fn = out_folder + 'Loss_plots/' + 'Optimization_best_model_metric_over_epoch_line_plot.png')
+
+	pwrite(f_log, 'R-squred for this round: %.3f' % (r2) + ' (the best model has an R-squred of %.3f' %  (best_r2) + ')' +'\n')
+
+	# write out the parameters
+	with open(f_opti, 'a') as f:
+		f.write(str(r2) + '\t' + '\t'.join([str(params_dict[x.name]) for x in cnn_params_lst]) + '\n')
 
 	del model
 	K.clear_session()
 	return(-r2)
-
-def loss_plot(train, test, fn):
-	# plot training history
-	pyplot.clf()
-	pyplot.plot(train, label='train')
-	pyplot.plot(test, label='test')
-	pyplot.legend()
-	pyplot.xlabel("Epochs")
-	pyplot.ylabel("Loss (mse)")
-	if not os.path.exists(args.o + 'Loss_plots'):
-		os.mkdir(args.o + 'Loss_plots')
-	pyplot.savefig(args.o + 'Loss_plots/' + fn)
 
 ######------------------------------------------------------------------------------------------------------------
 t_start = time() # timer start
@@ -500,24 +364,20 @@ parser.add_argument('-m', '--mode', dest = 'm', type = str, default = 'test', he
 parser.add_argument('-op', '--hyperparameters', dest = 'op', type = int, default = 100, help = 'Number of hyperparameter combinations')
 args = parser.parse_args()
 
-
 # output folder
-if not os.path.exists(args.o):
-	os.makedirs(args.o)
-if not args.o.endswith('/'):
-	args.o = args.o + '/'
-if not os.path.exists(args.o + 'Models'):
-	os.mkdir(args.o + 'Models')	
+out_folder = args.o
+if not os.path.exists(out_folder):
+	os.makedirs(out_folder)
+if not out_folder.endswith('/'):
+	out_folder = out_folder + '/'
+for sub_folder in ['Data', 'Models', 'Loss_plots', 'Scatter_plots', 'Predictions']:
+	if not os.path.exists(out_folder + sub_folder):
+		os.mkdir(out_folder + sub_folder )
 
 # update global parameters for a input file
 if args.p:
-	with open(args.p, 'r') as f:
-		for line in f:
-			lst = line.strip().split(': ')
-			if lst[0] in params_global:
-				params_global[lst[0]] = type(params_global[lst[0]])(lst[1])
-			elif lst[0] in inn_params:
-				inn_params[lst[0]] = type(inn_params[lst[0]])(lst[1])
+	update_dict_from_file(params_global, args.p)
+	update_dict_from_file(inn_params, args.p)
 
 # if the following paramters are specified in the input, update with these
 # update the length 
@@ -542,7 +402,7 @@ if args.s:
 	if args.x is None or args.y is None:
 		parser.error('In case of skipping sequence conversion, data for X (feature matrix) and Y (target values)!')
 	idf = args.x.split('X_matrix_')[-1].split('.')[0]
-	f_log = make_log_file(args.o + idf + '_simple_log.txt', p_params = params_global, p_vars = vars(args))
+	f_log = make_log_file(out_folder + idf + '_simple_log.txt', p_params = params_global, p_vars = vars(args))
 	pwrite(f_log, 'Sequence conversion skipped.')
 else:
 	if args.d is None:
@@ -552,7 +412,7 @@ else:
 			idf = args.u.split('/')[-1].split('.')[0]
 	else:
 		idf = args.d.split('/')[-1].split('.')[0]
-	f_log = make_log_file(args.o + idf + '_complete_log.txt', p_params = params_global, p_vars = vars(args))
+	f_log = make_log_file(out_folder + idf + '_complete_log.txt', p_params = params_global, p_vars = vars(args))
 
 ###---------------------------------------------------------------------------------------------------------
 if args.s is False: # if pre-converted data not provided
@@ -561,7 +421,7 @@ if args.s is False: # if pre-converted data not provided
 	y_dict = {}
 	if args.d:
 		pwrite(f_log, '\nInput file with target values:\n' + args.d)
-		pwrite(f_log, '\nMake a dictionary of target values...' + timer())
+		pwrite(f_log, '\nMake a dictionary of target values...' + timer(t_start))
 		with open(args.d, 'r') as f:
 			if params_global['flag_input_header']:
 				f.readline()
@@ -574,12 +434,12 @@ if args.s is False: # if pre-converted data not provided
 		pwrite(f_log, 'Number of total entries in the input file: ' + str(i+1))
 		pwrite(f_log, 'Number of entries included in the downstream analysis: ' + str(len(y_dict)))
 	else:
-		pwrite(f_log, '\nNo targets values are provided. Likely in prediction mode...' + timer())
+		pwrite(f_log, '\nNo targets values are provided. Likely in prediction mode...' + timer(t_start))
 
 	# if inital tail length tail length is provided, make a disctionary
 	if args.i:
 		pwrite(f_log, '\nInput file with initial tail lengths:\n' + args.i)
-		pwrite(f_log, '\nMake a dictionary...' + timer())
+		pwrite(f_log, '\nMake a dictionary...' + timer(t_start))
 		itl_dict = {}
 		with open(args.i, 'r') as f:
 			f.readline() # header
@@ -596,21 +456,21 @@ if args.s is False: # if pre-converted data not provided
 	# if CDS sequence file is provided, make a dictionary 
 	if args.c:
 		pwrite(f_log, '\nInput CDS file:\n' + args.c)
-		pwrite(f_log, '\nMake a dictionary of CDS sequences...' + timer())
+		pwrite(f_log, '\nMake a dictionary of CDS sequences...' + timer(t_start))
 		cds_dict = fasta_to_dict(args.c)
 		pwrite(f_log, 'Number of entries in the fasta file: ' + str(len(cds_dict)))
 	else:
-		pwrite(f_log, '\nNo CDS sequences are provided. Use only 3\'-UTR sequences...' + timer())
+		pwrite(f_log, '\nNo CDS sequences are provided. Use only 3\'-UTR sequences...' + timer(t_start))
 
 	# if RNA fold file is provided, make a dictionary 
 	if args.f:
 		pwrite(f_log, '\nInput RNA fold data:\n' + args.f)
 
 		if params_global['n_dimension'] == 3:
-			pwrite(f_log, '\nLoad RNA fold data...' + timer())
+			pwrite(f_log, '\nLoad RNA fold data...' + timer(t_start))
 			fold_h5 = h5py.File(args.f)
 		else:
-			pwrite(f_log, '\nMake a dictionary of RNA fold data...' + timer())
+			pwrite(f_log, '\nMake a dictionary of RNA fold data...' + timer(t_start))
 			fold_dict = {}
 			with open(args.f, 'r') as f:
 				while(True):
@@ -626,7 +486,7 @@ if args.s is False: # if pre-converted data not provided
 					else:
 						break
 	else:
-		pwrite(f_log, '\nNo RNA fold data is provided.' + timer())
+		pwrite(f_log, '\nNo RNA fold data is provided.' + timer(t_start))
 
 	# convert sequence to 2D or 3D matrix
 	pwrite(f_log, '\nRead in the fasta sequence file...')
@@ -653,7 +513,7 @@ if args.s is False: # if pre-converted data not provided
 							n_drop_fa_string_filter += n1
 							n_drop_short_utr += n2
 							n_drop_unknown_nt += n3
-					pwrite(f_log, str(counting) + ' sequences processed...' + timer())
+					pwrite(f_log, str(counting) + ' sequences processed...' + timer(t_start))
 				break
 			else:
 				if line[0] == '>':
@@ -673,7 +533,7 @@ if args.s is False: # if pre-converted data not provided
 									n_drop_fa_string_filter += n1
 									n_drop_short_utr += n2
 									n_drop_unknown_nt += n3
-							pwrite(f_log, str(counting) + ' sequences processed...' + timer())
+							pwrite(f_log, str(counting) + ' sequences processed...' + timer(t_start))
 						line_lst = []
 				else:
 					temp_seq += line.strip()
@@ -685,8 +545,8 @@ if args.s is False: # if pre-converted data not provided
 	X_ary = np.vstack(X_mat_lst)
 	Y_df = pd.concat(Y_df_lst, ignore_index = True)
 	
-	np.save(args.o + 'temp_X_matrix_' + idf + '.npy', X_ary)
-	Y_df.to_csv(args.o + 'temp_Y_df_' + idf + '.csv')
+	np.save(out_folder + 'Data/' + 'temp_X_matrix_' + idf + '.npy', X_ary)
+	Y_df.to_csv(out_folder + 'Data/' + 'temp_Y_df_' + idf + '.csv')
 
 else:
 	X_ary = np.load(args.x)
@@ -723,7 +583,7 @@ else:
 
 # for optimization of hyperparameters
 if args.m.startswith('op'):
-	pwrite(f_log, '\nPerforming hyperparameter search...'+ timer())
+	pwrite(f_log, '\nPerforming hyperparameter search...'+ timer(t_start))
 	pwrite(f_log, 'Ratio between testing and training sets: ' + str(params_global['test_size']))
 	params_global['flag_print_model'] = False
 
@@ -742,31 +602,29 @@ if args.m.startswith('op'):
 	# optimize with objective function
 	best_r2 = 0
 	opti_count = 0 
+	f_opti = out_folder + idf + '_hyperparameter_search_stats.txt'
+	with open(f_opti, 'a') as f:
+		f.write('objective_value' + '\t' + '\t'.join([x.name for x in cnn_params_lst]) + '\n')
+
 	search_result = gp_minimize(func = fitness, dimensions = inn_params_lst, acq_func = 'EI', n_calls = args.op)
 	
 	# make a few plots for the parameters
 	plot_convergence(search_result)
-	pyplot.savefig(args.o + idf + '_hyperparameter_search_convergence_plot.png')
+	pyplot.savefig(out_folder + idf + '_hyperparameter_search_convergence_plot.png')
 	#plot_evaluations(search_result)
-	#pyplot.savefig(args.o + idf + '_hyperparameter_search_evaluation_plot.png')
+	#pyplot.savefig(out_folder + idf + '_hyperparameter_search_evaluation_plot.png')
 	plot_objective(search_result)
-	pyplot.savefig(args.o + idf + '_hyperparameter_search_objective_plot.png')
-	
-	# write out all parameters
-	with open(args.o + idf + '_hyperparameter_search_stats.txt', 'w') as f:
-		f.write('objective_value' + '\t' + '\t'.join([x.name for x in inn_params_lst]) + '\n')
-		for obj, lst in sorted(zip(search_result.func_vals, search_result.x_iters)):
-			f.write(str(obj) + '\t' + '\t'.join(list(map(str, lst))) + '\n')
+	pyplot.savefig(out_folder + idf + '_hyperparameter_search_objective_plot.png')
 	
 	# use the best model to predict the test set
-	model = keras.models.load_model(args.o + 'Models/' + idf + '_global_best_model.h5', custom_objects={'custom_metric': inn_models.custom_metric})
+	model = keras.models.load_model(out_folder + 'Models/' + idf + '_global_best_model.h5', custom_objects={'custom_metric': inn_models.custom_metric})
 	Y_pred_trans = model.predict(X_test).ravel()
 	Y_pred = target_transform(Y_pred_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
 	r_value = stats.linregress(Y_test, Y_pred).rvalue
 	pwrite(f_log, 'R-squred the best model prediction: %.3f' % (r_value ** 2) + '\n')
 
 	# write out predictions
-	out_pred = args.o + idf + '_test_prediction_results.txt'
+	out_pred = out_folder + 'Predictions/'+ idf + '_test_prediction_results.txt'
 	with open(out_pred, 'w') as f_res:
 		f_res.write('id\ty\ty_pred\ty_trans\ty_pred_trans\tlabel\n')
 		for k in range(Y_test_pd.shape[0]):
@@ -775,9 +633,7 @@ if args.m.startswith('op'):
 
 # for training and testing with defined hyperparameters
 elif args.m == 'cv' or args.m == 'test':
-	pwrite(f_log, '\nUse a INN model for training and testing in a CV fold of ' + str(int(1/params_global['test_size'])) + ' with the following hyperparameters...' + timer())
-	if not os.path.exists(args.o + 'Predictions'):
-		os.mkdir(args.o + 'Predictions')	
+	pwrite(f_log, '\nUse a INN model for training and testing in a CV fold of ' + str(int(1/params_global['test_size'])) + ' with the following hyperparameters...' + timer(t_start))	
 
 	for hp in inn_params:
 		pwrite(f_log, hp + ': ' + str(inn_params[hp]))
@@ -785,8 +641,8 @@ elif args.m == 'cv' or args.m == 'test':
 	# split data into k-fold, stratified by whether 
 	sfk_split = StratifiedKFold(n_splits = int(1/params_global['test_size']), shuffle = True, random_state = 57).split(X_ary, Y_df['label'])
 
-	out_pred = args.o + idf + '_train_test_CV_prediction_results.txt'
-	with open(out_pred, 'w') as f_res, open(args.o + idf + '_train_test_CV_stats.txt', 'w') as f_stat:
+	out_pred = out_folder + 'Predictions/'+ idf + '_train_test_CV_prediction_results.txt'
+	with open(out_pred, 'w') as f_res, open(out_folder + idf + '_train_test_CV_stats.txt', 'w') as f_stat:
 		f_stat.write('group\trep\tr2\tloss\tvalue\n')
 		f_res.write('group\tid\ty\ty_pred\ty_trans\ty_trans_pred\tlabel\n')
 		for i, (train_idx, test_idx) in enumerate(sfk_split):
@@ -809,7 +665,7 @@ elif args.m == 'cv' or args.m == 'test':
 				history, model, params = model_inn(X_train, Y_train, X_test, Y_test, inn_params, best_model = True, early_stop = False)
 						
 				# predict the test set and evaluate:
-				model.save(args.o + 'Models/' + idf + '_best_model_CV_group_'+ str(i+1) + '_rep_' + str(j+1) + '.h5')
+				model.save(out_folder + 'Models/' + idf + '_best_model_CV_group_'+ str(i+1) + '_rep_' + str(j+1) + '.h5')
 				scores = model.evaluate(X_test, Y_test_trans, batch_size=params['batch_size'], verbose = args.v)
 				Y_pred_trans = model.predict(X_test, verbose = args.v).ravel()
 				Y_pred = target_transform(Y_pred_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
@@ -826,15 +682,15 @@ elif args.m == 'cv' or args.m == 'test':
 				
 				# make train-test loss line plot
 				loss_plot(train = history.history['loss'], test = history.history['val_loss'], 
-					fn = idf + '_loss_over_epoch_line_plot_CV_group_' + str(i+1) + '_rep_' + str(j+1) +'.png')
+					fn = out_folder + 'Loss_plots/' + idf + '_loss_over_epoch_line_plot_CV_group_' + str(i+1) + '_rep_' + str(j+1) +'.png')
 				loss_plot(train = history.history['custom_metric'], test = history.history['val_custom_metric'], 
-					fn = idf + '_metric_over_epoch_line_plot_CV_group_' + str(i+1) + '_rep_' + str(j+1) +'.png')
+					fn = out_folder + 'Loss_plots/' + idf + '_metric_over_epoch_line_plot_CV_group_' + str(i+1) + '_rep_' + str(j+1) +'.png')
 
 				if args.m != 'cv': # only do this once if not in 'cv' mode
 					break
 
 			# output preditions with the best model for this CV group
-			best_model.save(args.o + 'Models/' + idf + '_best_model_CV_group_'+ str(i+1) + '.h5')
+			best_model.save(out_folder + 'Models/' + idf + '_best_model_CV_group_'+ str(i+1) + '.h5')
 			Y_pred_trans = best_model.predict(X_test, verbose = args.v).ravel()
 			Y_pred = target_transform(Y_pred_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
 			for k in range(len(Y_test)):
@@ -863,7 +719,7 @@ else: # args.m == 'predict'
 		Y_pred_trans = model.predict(X_ary).ravel()
 
 	# write out predictions
-	out_pred = args.o + idf + '_prediction_results.txt'
+	out_pred = out_folder + 'Predictions/' + idf + '_prediction_results.txt'
 
 	if 'NA' not in Y_df['y'].to_numpy():
 		Y_pred = target_transform(Y_pred_trans, method = params_global['y_mode'], offset = y_offset, inverse = True)[0]
@@ -884,13 +740,11 @@ else: # args.m == 'predict'
 				f_res.write('\t'.join(list(map(str, [Y_df['id'].to_numpy()[k], Y_pred_trans[k], Y_df['label'].to_numpy()[k]]))) + '\n')
 
 ####---------------------------------------------------------------------------------------------------------
-# Make a plot for comparing measured and predicted values (require an R script "Scatter_plot.R")
-if os.path.exists('Scatter_plot.R'):
-	command = 'Rscript Scatter_plot.R ' + out_pred
-	subprocess.Popen(shlex.split(command)).communicate()
-else:
-	pwrite(f_log, 'R script "Scatter_plot.R" not found. No plots made.')
+# Make a plot for comparing measured and predicted values 
+if 'out_pred' in globals() and os.path.exists(out_pred):
+	out_pd = pd.read_csv(out_pred, sep = '\t')
+	scatter_plot(out_pd['y'], out_pd['y_pred'], fn = out_folder + 'Scatter_plots/' + idf + '_final_scatter_plot.png')
 
-pwrite(f_log, 'Finished...' + timer())
+pwrite(f_log, 'Finished...' + timer(t_start))
 f_log.close()
 
