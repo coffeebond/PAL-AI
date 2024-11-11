@@ -84,8 +84,8 @@ inn_params = OrderedDict([
 
 inn_params_lst = [
 	Categorical(categories=[32, 64, 96], name = 'n_Conv1D_filter'),
-	Categorical(categories=[5, 6], name = 'n_Conv1D_kernal'),
-	Categorical(categories=[1, 2], name = 'n_Conv1D_MaxPool_block'),
+	Categorical(categories=[5, 6, 7, 8], name = 'n_Conv1D_kernal'),
+	Categorical(categories=[1, 2, 3], name = 'n_Conv1D_MaxPool_block'),
 	Categorical(categories=[64], name = 'n_Conv2D_filter'),
 	Categorical(categories=[5, 6, 7], name = 'n_Conv2D_kernal'),
 	Categorical(categories=[1], name = 'n_Conv2D_MaxPool_block'),
@@ -102,7 +102,7 @@ inn_params_lst = [
 	#Categorical(categories=['mse'], name='loss'), #'loss'
 	#Categorical(categories=['mae'], name='metrics'), #'metrics'
 	Categorical(categories=[100], name = 'batch_size'),
-	Categorical(categories=[10], name = 'epochs')
+	Categorical(categories=[20], name = 'epochs')
 ]
 
 def process_seqs(line_lst):
@@ -115,6 +115,7 @@ def process_seqs(line_lst):
 	n_drop_fa_string_filter = 0 # number of entries dropped because the name of each sequence entry in the input file contains a string ("uncertain" annotations)
 	n_drop_short_utr = 0 # number of entries dropped because of short UTR sequence
 	n_drop_unknown_nt = 0 # numbner of entries dropped becasue of unknown characters in the sequence
+	n_utr_w_cds = 0 # number of UTRs with CDS sequences appended
 	for lines in line_lst:
 		sele_id = fasta_id_parser(lines[0], sep = '__')[0]
 		if len(fasta_id_parser(lines[0], sep = '__')) > 1:
@@ -146,6 +147,7 @@ def process_seqs(line_lst):
 							c5_ary = np.asarray([0 for i in range(params_global['len_max']-len(seq))] + [1 for i in range(len(seq))]) # 5th channel for labeling UTR (1) or non-UTR (0)
 							if gene_id in cds_dict:
 								cds_seq = cds_dict[gene_id]
+								n_utr_w_cds += 1
 							else:
 								cds_seq = 'N' * params_global['len_max']
 							if len(cds_seq) >= (params_global['len_max']-len(seq)):
@@ -217,14 +219,16 @@ def process_seqs(line_lst):
 				pd.DataFrame({'id':id_lst, 'y':y_lst, 'label':label_lst, 'itl':itl_lst}), 
 				n_drop_fa_string_filter, 
 				n_drop_short_utr, 
-				n_drop_unknown_nt)
+				n_drop_unknown_nt,
+				n_utr_w_cds)
 		else:
 			return(
 				np.stack(X_mat_lst, axis = 0), 
 				pd.DataFrame({'id':id_lst, 'y':y_lst, 'label':label_lst}), 
 				n_drop_fa_string_filter, 
 				n_drop_short_utr, 
-				n_drop_unknown_nt)
+				n_drop_unknown_nt,
+				n_utr_w_cds)
 	else:
 		return(None)
 
@@ -305,7 +309,7 @@ def fitness(n_Conv1D_filter, n_Conv1D_kernal, n_Conv1D_MaxPool_block,
 	Y_pred_trans = model.predict(X_test).ravel()
 
 	# transform values back
-	Y = target_transform(Y_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
+	Y = target_transform(Y_test_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
 	Y_pred = target_transform(Y_pred_trans, method = params_global['y_mode'], offset = y_offset, inverse = True, tf = tf_fitted)[0]
 	
 	# make a scatter plot
@@ -336,7 +340,7 @@ def fitness(n_Conv1D_filter, n_Conv1D_kernal, n_Conv1D_MaxPool_block,
 
 	# write out the parameters
 	with open(f_opti, 'a') as f:
-		f.write(str(r2) + '\t' + '\t'.join([str(params_dict[x.name]) for x in cnn_params_lst]) + '\n')
+		f.write(str(r2) + '\t' + '\t'.join([str(params_dict[x.name]) for x in inn_params_lst]) + '\n')
 
 	del model
 	K.clear_session()
@@ -457,7 +461,7 @@ if args.s is False: # if pre-converted data not provided
 	if args.c:
 		pwrite(f_log, '\nInput CDS file:\n' + args.c)
 		pwrite(f_log, '\nMake a dictionary of CDS sequences...' + timer(t_start))
-		cds_dict = fasta_to_dict(args.c)
+		cds_dict = fasta_to_dict(args.c, key_parser_sep = '__', key_parser_pos = 0)
 		pwrite(f_log, 'Number of entries in the fasta file: ' + str(len(cds_dict)))
 	else:
 		pwrite(f_log, '\nNo CDS sequences are provided. Use only 3\'-UTR sequences...' + timer(t_start))
@@ -496,6 +500,7 @@ if args.s is False: # if pre-converted data not provided
 		n_drop_fa_string_filter = 0
 		n_drop_short_utr = 0
 		n_drop_unknown_nt = 0
+		n_utr_w_cds = 0
 		X_mat_lst = []
 		Y_df_lst = []
 		temp_seq = ''
@@ -507,12 +512,13 @@ if args.s is False: # if pre-converted data not provided
 					futures = pool.map(process_seqs, np.array_split(line_lst, min(params_global['n_threads'], len(line_lst))))
 					for future in futures:
 						if future is not None:
-							ary, df, n1, n2, n3 = future
+							ary, df, n1, n2, n3, n4 = future
 							X_mat_lst.append(ary)
 							Y_df_lst.append(df)
 							n_drop_fa_string_filter += n1
 							n_drop_short_utr += n2
 							n_drop_unknown_nt += n3
+							n_utr_w_cds += n4
 					pwrite(f_log, str(counting) + ' sequences processed...' + timer(t_start))
 				break
 			else:
@@ -527,12 +533,13 @@ if args.s is False: # if pre-converted data not provided
 							futures = pool.map(process_seqs, np.array_split(line_lst, params_global['n_threads']))
 							for future in futures:
 								if future is not None:
-									ary, df, n1, n2, n3 = future
+									ary, df, n1, n2, n3, n4 = future
 									X_mat_lst.append(ary)
 									Y_df_lst.append(df)
 									n_drop_fa_string_filter += n1
 									n_drop_short_utr += n2
 									n_drop_unknown_nt += n3
+									n_utr_w_cds += n4
 							pwrite(f_log, str(counting) + ' sequences processed...' + timer(t_start))
 						line_lst = []
 				else:
@@ -542,6 +549,8 @@ if args.s is False: # if pre-converted data not provided
 	pwrite(f_log, 'Number of sequences removed because sequences in the fasta file is uncertain: ' + str(n_drop_fa_string_filter))
 	pwrite(f_log, 'Number of sequences removed because 3\'-UTR seqeunces shorter than ' + str(params_global['len_min']) +': ' + str(n_drop_short_utr))
 	pwrite(f_log, 'Number of sequences removed because of un-recogenized characters in the sequence: ' + str(n_drop_unknown_nt))
+	if args.c:
+		pwrite(f_log, 'Number of 3\'-UTRs with CDS sequences added to the 5\' end: ' + str(n_utr_w_cds))
 	X_ary = np.vstack(X_mat_lst)
 	Y_df = pd.concat(Y_df_lst, ignore_index = True)
 	
@@ -603,8 +612,8 @@ if args.m.startswith('op'):
 	best_r2 = 0
 	opti_count = 0 
 	f_opti = out_folder + idf + '_hyperparameter_search_stats.txt'
-	with open(f_opti, 'a') as f:
-		f.write('objective_value' + '\t' + '\t'.join([x.name for x in cnn_params_lst]) + '\n')
+	with open(f_opti, 'w') as f:
+		f.write('objective_value' + '\t' + '\t'.join([x.name for x in inn_params_lst]) + '\n')
 
 	search_result = gp_minimize(func = fitness, dimensions = inn_params_lst, acq_func = 'EI', n_calls = args.op)
 	

@@ -1,4 +1,4 @@
-len_max=84
+len_max=1056
 len_min=10
 y_mode=none
 tl_cons=35

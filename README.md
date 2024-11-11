@@ -72,7 +72,7 @@ python -u INN_main.py
 
 The **prediction** mode can be specified by the option `-m` with the value of `prediction`.
 
-In the `Models` folder, we provide models trained on poly(A)-tail length datasets generated in *Xenopus laevis* oocytes. Only 3' UTRs upto 1053 nt long were used (no coding regions or RNA folding information).
+PAL-AI models trained on poly(A)-tail length datasets generated in *Xenopus laevis* oocytes are provided in the `Models` folder. Only 3' UTRs upto 1053 nt long were used (no coding regions or RNA folding information) when these models were trained. Note that, the final predictions should be averaged among results predicted by all 10 models as an ensemble.
 
 An example run can be performed using the provided data in the `Data` folder and pre-trained models in the `Models` folder as below:
 
@@ -90,7 +90,7 @@ python INN_main.py \
 
 ### Optimization mode
 
-The **optimization** mode can be specified by the option `-m` with the value of `opti`.
+The **optimization** mode can be specified by the option `-m` with the value of `opti`. The hyperparameters that can be optimized are specified in the `INN_main.py` file by the `inn_params_lst` variable. Search space for individual hyperparameters can be changed within this list. The optimization process is executed through the [`gp_minimize`](<https://scikit-optimize.github.io/stable/modules/generated/skopt.gp_minimize.html>) function. The number of searches can be specified by the `-op` option. For each search, the `R-squared` value and search parameters are written to a file ending with `_hyperparameter_search_stats.txt`.
 
 An example run can be performed using the provided data in the `Data` folder as below:
 
