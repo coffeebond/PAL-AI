@@ -28,26 +28,6 @@ source PAL_AI_env/bin/activate
 ```
 
 ## Options for the input
-<<<<<<< HEAD
-=======
-* `-d`: Input file with ID and tail-length difference as target values
-* `-i`: Input file with ID and initial tail length (optional)
-* `-u`: Input (3'-UTR) sequences in FASTA format 
-* `-c`: Input (coding region) sequences in FASTA format (optional)
-* `-f`: Input containing base-paring probability for each sequence (optional)
-* `-md`: Model file for predictions in h5 format
-* `-n`: Choice of neural network for the model (default: `inn`)
-* `-p`: A text file with global and INN parameters (each parameter as a line and use ": " as the delimiter)
-* `-o`: Folder for output files (default: `INN_out`)
-* `-l`: Maximal length of sequence (from 3'-end) used as the input
-* `-t`: The function to transform target values, choice of `none` (default), `diff`, `log`, `sqrt`, `box-cox`, or `yeo-johnson`
-* `-v`: Verbose for the output during the run of this script (default: `0`)
-* `-s`: If specified, the sequence conversion step will be skipped. Must use with `-x` and `-y`.
-* `-x`: Input file in `npy` format with converted matrices from sequences
-* `-y`: Input fiel in `csv` format with target values and associated labels
-* `-m`: Mode to run this script, choice of `cv` (cross validation), `opti` (optimization for hyperparameter search), `test` (testing), or `predict` (prediction)
-* `-op`: Number of hyperparameter combinations. Only used in `opti` mode, default: `100`.
->>>>>>> 4d46718e61c0d6008d11cd0cb251a1292f277682
 
 -   `-p`: A text file with global and INN parameters. Global (`params_global`) and INN (`inn_params`) parameters defined in the `INN_main.py` file can be changed with this text file. One parameter can be specified in each line. The format is the name of the parameter and its value, separated by `=`. For example, `len_max=84`
 -   `-d`: Input file with 3' UTR ID and tail-length difference as target values. This file should be tab-delimited. Two columns (with column names by default) must be present. The first column contains the unique identifier for each entry (3' UTR ID), and the second column contains corresponding target values (usually poly(A) tail-length changes or translational changes) for the model to train or predict. An optional third column may be included, which can be used as a metric for filtering. It usually contains the number of poly(A) tags (reflecting the abundance) for each entry.
@@ -110,7 +90,6 @@ python INN_main.py \
 
 ### Optimization mode
 
-<<<<<<< HEAD
 The **optimization** mode can be specified by the option `-m` with the value of `opti`.
 
 An example run can be performed using the provided data in the `Data` folder as below:
@@ -125,6 +104,4 @@ python INN_main.py \
     -m opti \
     -op 500 \
     -v 0
-=======
->>>>>>> 4d46718e61c0d6008d11cd0cb251a1292f277682
 ```
