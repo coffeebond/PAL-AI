@@ -201,7 +201,7 @@ def scatter_plot(x, y, fn):
 
 	# Create scatter plot
 	pyplot.figure(figsize=(8, 6))
-	scatter = pyplot.scatter(x, y, c=z, cmap='viridis', s=50)
+	scatter = pyplot.scatter(x, y, c=z, cmap='viridis', s=20)
 
 	# Add labels
 	pyplot.xlabel('Measured data')

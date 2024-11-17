@@ -102,7 +102,7 @@ inn_params_lst = [
 	#Categorical(categories=['mse'], name='loss'), #'loss'
 	#Categorical(categories=['mae'], name='metrics'), #'metrics'
 	Categorical(categories=[100], name = 'batch_size'),
-	Categorical(categories=[20], name = 'epochs')
+	Categorical(categories=[20,30,40], name = 'epochs')
 ]
 
 def process_seqs(line_lst):

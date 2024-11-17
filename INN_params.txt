@@ -27,4 +27,4 @@ learning_rate=0.001
 loss=mse
 metrics=mae
 batch_size=50
-epochs=10
+epochs=30
