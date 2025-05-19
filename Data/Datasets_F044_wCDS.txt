@@ -1,0 +1,3 @@
+group	type	file
+1	x_utr	Data/XL_F044_utr3.fa
+1	x_cds	Data/XL_F044_cds.fa

@@ -1,0 +1,80 @@
+global_config:
+  fa_string_filter: 'uncertain'
+  flag_input_header: True
+  flag_initial_tl: False
+  input_tag_min: 50
+  seq_3end_append: 'AAA'
+  len_max: 1000
+  len_min: 10
+  n_cpe_max: 4
+  y_mode: 'none'
+  y_offset: 0
+  tl_cons: 35
+  test_size: 0.1
+  n_dimension: 2
+  n_rep: 5
+  flag_print_model: true
+  out_folder: 'Test'
+  idf: 
+  verbose: 0
+  n_threads: 20
+  chunk: 10000
+
+inn_params:
+  input_shape: [1056, 5]
+  flag_initial_tl: false
+  n_Conv1D_filter: 64
+  n_Conv1D_kernel: 6
+  n_Conv1D_MaxPool_block: 1  
+  n_pool_size: 2
+  activation_func: 'leaky_relu'
+  dropout_rate: 0.3
+  n_dense_neuron: 96
+  rnn_func: 'BiGRU'
+  n_rnn_units: 128
+  l1_reg: 0.00001746
+  l2_reg: 0.001247
+  optimizer: 'adam'
+  learning_rate: 0.001282
+  loss: 'mse'
+  metrics: 'mae'
+  batch_size: 64
+  epochs: 100
+  resnet_trim: 'left'
+  resnet_version: 2
+  resnet_n_group: 7
+  resnet_n_block: 4
+  dilation_rate_lst: [1, 2, 4, 8, 4, 2, 1]
+  n_Conv2D_filter: 32
+  n_Conv2D_kernel: 5
+  n_Conv2D_MaxPool_block: 1
+
+inn_params_opti:
+  n_Conv1D_filter: [32, 64, 96, 128]
+  n_Conv1D_kernel: [4, 5, 6, 7]
+  n_Conv1D_MaxPool_block: [1, 2, 3]
+  n_Conv2D_filter: [64]
+  n_Conv2D_kernel: [5]
+  n_Conv2D_MaxPool_block: [1]
+  n_dense_neuron: [32, 64, 96, 128]
+  n_pool_size: [2]
+  rnn_func: ['BiGRU']
+  n_rnn_units: [32, 64, 96, 128]
+  resnet_version: [2]
+  resnet_n_group: [7] 
+  resnet_n_block: [4] 
+  activation_func: ['leaky_relu']
+  loss: ['mse', 'mae']
+  l1_reg: 
+    min: 0.000001
+    max: 0.1
+  l2_reg:
+    min: 0.000001
+    max: 0.1
+  dropout_rate: [0.1, 0.2, 0.3, 0.4]
+  optimizer: ["adam"]
+  learning_rate: 
+    min: 0.00001
+    max: 0.1
+  batch_size: [32, 64, 128]
+  epochs: [50]

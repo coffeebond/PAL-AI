@@ -1,0 +1,2 @@
+group	type	file
+1	x_utr	Data/Xiong_2022_Fig4g_mouse_Snd1_reporter_3UTR.fa

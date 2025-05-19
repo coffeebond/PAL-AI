@@ -1,0 +1,3 @@
+group	type	file
+1	y	Data/MM_oo_MII_vs_GV_tail_length_change.txt
+1	x_utr	Data/MM_utr3.fa

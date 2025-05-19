@@ -1,0 +1,3 @@
+group	type	file
+1	x_utr	Data/MM_utr3.fa
+1	x_cds	Data/MM_cds.fa

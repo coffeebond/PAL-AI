@@ -27,6 +27,8 @@ Once installed, the virtual environment can be activated by
 source PAL_AI_env/bin/activate
 ```
 
+# This following part is pending update
+
 ## Options for the input
 
 -   `-p`: A text file with global and INN parameters. Global (`params_global`) and INN (`inn_params`) parameters defined in the `INN_main.py` file can be changed with this text file. One parameter can be specified in each line. The format is the name of the parameter and its value, separated by `=`. For example, `len_max=84`
