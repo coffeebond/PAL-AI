@@ -1,0 +1,472 @@
+
+Input arguments:
+	d: Data/XL_oo_b5v5_pp_7h_tail_length_change.txt
+	i: None
+	u: Data/B5v5_utr3.fa
+	c: None
+	f: None
+	md: None
+	n: inn
+	p: INN_config.yaml
+	o: CV_b5v5_L_84
+	l: 84
+	x: None
+	y: None
+	m: cv
+	op: 100
+
+----------------------------------------------------------------------------------------------------
+Parameters have been updated with the yaml file.
+
+Global parameters:
+	NAME: Global parameters
+	fa_string_filter: uncertain
+	flag_input_header: True
+	flag_initial_tl: False
+	input_tag_min: 50
+	seq_3end_append: AAA
+	len_max: 84
+	len_min: 10
+	n_cpe_max: 2
+	y_mode: none
+	y_offset: 0
+	tl_cons: 35
+	test_size: 0.1
+	n_dimension: 2
+	n_rep: 5
+	flag_print_model: True
+	out_folder: CV_b5v5_L_84
+	idf: XL_oo_b5v5_pp_7h_tail_length_change
+	verbose: 0
+	n_threads: 20
+	chunk: 10000
+
+Neural Network parameters:
+	NAME: Neural Network parameters
+	input_shape: [1056, 5]
+	flag_initial_tl: False
+	n_Conv1D_filter: 96
+	n_Conv1D_kernel: 4
+	activation_func: leaky_relu
+	dropout_rate: 0.2
+	n_dense_neuron: 96
+	rnn_func: GRU
+	n_rnn_units: 128
+	l1_reg: 1.798e-06
+	l2_reg: 0.001257
+	optimizer: adam
+	learning_rate: 0.00030457
+	loss: mae
+	metrics: mse
+	batch_size: 64
+	epochs: 100
+	resnet_trim: left
+	resnet_version: 2
+	resnet_n_group: 7
+	resnet_n_block: 4
+	dilation_rate_lst: [1, 2, 4, 8, 4, 2, 1]
+	n_Conv1D_MaxPool_block: 1
+	n_pool_size: 2
+	n_Conv2D_filter: 32
+	n_Conv2D_kernel: 5
+	n_Conv2D_MaxPool_block: 1
+
+----------------------------------------------------------------------------------------------------
+Detected 1 GPU cores.
+
+----------------------------------------------------------------------------------------------------
+Prepare data for analysis...
+
+Input file with target values:
+Data/XL_oo_b5v5_pp_7h_tail_length_change.txt
+
+Make a dictionary of target values...	0s passed...	2025-03-25 00:35:58.306566
+Number of total entries in the input file: 35378
+Number of entries included in the downstream analysis: 34527
+
+No CDS sequences are provided. Use only 3'-UTR sequences...	0s passed...	2025-03-25 00:35:58.440774
+
+No RNA fold data is provided.	0s passed...	2025-03-25 00:35:58.440796
+
+Read in the fasta sequence file...
+10000 sequences processed...	0s passed...	2025-03-25 00:35:59.034258
+20000 sequences processed...	1s passed...	2025-03-25 00:35:59.647686
+30000 sequences processed...	2s passed...	2025-03-25 00:36:00.183927
+35987 sequences processed...	2s passed...	2025-03-25 00:36:00.626642
+Total number of sequences in the input file: 35987
+Number of sequences removed because sequences in the fasta file is uncertain: 0
+Number of sequences removed because 3'-UTR seqeunces shorter than 10: 0
+Number of sequences removed because of un-recogenized characters in the sequence: 0
+Number of sequences remained after filtering and encoding: 34527
+
+Number of sequences by CPE count (for stratification):
+0: 26851
+1: 6871
+2: 805
+
+Data matrix dimension, X: (34527, 84, 4) Y: (34527, 3)
+
+Neural Network parameters (updated):
+input_shape: (84, 4)
+
+----------------------------------------------------------------------------------------------------
+Target Y contains negative values. An offset of 35 will be used if log, sqrt, or boxcox transformation is applied.
+Check the overall skewness of target values if the following tranformation is applied: 
+none: 2.335
+log: 1.102
+sqrt: 1.679
+box-cox: -0.485
+yeo-johnson: -0.255
+Type of transformation of target values: none
+
+----------------------------------------------------------------------------------------------------
+
+
+Training and testing in a CV fold of 10...	3s passed...	2025-03-25 00:36:01.611796
+
+Training with CV group 1 out of 10, replicate 1 out of 5	3s passed...	2025-03-25 00:36:01.722840
+Model: "functional"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ input_layer (InputLayer)        │ (None, 84, 4)          │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d (Conv1D)                 │ (None, 81, 96)         │         1,632 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ layer_normalization             │ (None, 81, 96)         │           192 │
+│ (LayerNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ activation (Activation)         │ (None, 81, 96)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_1 (Conv1D)               │ (None, 78, 96)         │        36,960 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ layer_normalization_1           │ (None, 78, 96)         │           192 │
+│ (LayerNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ activation_1 (Activation)       │ (None, 78, 96)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d (MaxPooling1D)    │ (None, 39, 96)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 39, 96)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ GRU_activate (GRU)              │ (None, 128)            │        86,784 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ layer_normalization_2           │ (None, 128)            │           256 │
+│ (LayerNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ activation_2 (Activation)       │ (None, 128)            │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 96)             │        12,384 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_dense (Dropout)         │ (None, 96)             │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_nor_dense                 │ (None, 96)             │           384 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ activate_dense (Activation)     │ (None, 96)             │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ final_dense (Dense)             │ (None, 1)              │            97 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 138,881 (542.50 KB)
+ Trainable params: 138,689 (541.75 KB)
+ Non-trainable params: 192 (768.00 B)
+
+Return the best model...
+
+R squared:  0.80 (Rp =  0.895, Rs =  0.847)
+
+
+Training with CV group 1 out of 10, replicate 2 out of 5	637s passed...	2025-03-25 00:46:35.503057
+Return the best model...
+
+R squared:  0.80 (Rp =  0.894, Rs =  0.844)
+
+
+Training with CV group 1 out of 10, replicate 3 out of 5	1176s passed...	2025-03-25 00:55:34.107361
+Return the best model...
+
+R squared:  0.81 (Rp =  0.899, Rs =  0.845)
+
+
+Training with CV group 1 out of 10, replicate 4 out of 5	1604s passed...	2025-03-25 01:02:42.285557
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.847)
+
+
+Training with CV group 1 out of 10, replicate 5 out of 5	2113s passed...	2025-03-25 01:11:11.336534
+Return the best model...
+
+R squared:  0.80 (Rp =  0.895, Rs =  0.842)
+
+
+Training with CV group 2 out of 10, replicate 1 out of 5	2445s passed...	2025-03-25 01:16:43.841441
+Return the best model...
+
+R squared:  0.82 (Rp =  0.906, Rs =  0.866)
+
+
+Training with CV group 2 out of 10, replicate 2 out of 5	2813s passed...	2025-03-25 01:22:51.840296
+Return the best model...
+
+R squared:  0.81 (Rp =  0.902, Rs =  0.862)
+
+
+Training with CV group 2 out of 10, replicate 3 out of 5	3175s passed...	2025-03-25 01:28:53.647022
+Return the best model...
+
+R squared:  0.81 (Rp =  0.898, Rs =  0.862)
+
+
+Training with CV group 2 out of 10, replicate 4 out of 5	3557s passed...	2025-03-25 01:35:15.189505
+Return the best model...
+
+R squared:  0.80 (Rp =  0.895, Rs =  0.855)
+
+
+Training with CV group 2 out of 10, replicate 5 out of 5	3884s passed...	2025-03-25 01:40:42.116037
+Return the best model...
+
+R squared:  0.82 (Rp =  0.907, Rs =  0.865)
+
+
+Training with CV group 3 out of 10, replicate 1 out of 5	4263s passed...	2025-03-25 01:47:01.067646
+Return the best model...
+
+R squared:  0.82 (Rp =  0.908, Rs =  0.865)
+
+
+Training with CV group 3 out of 10, replicate 2 out of 5	4685s passed...	2025-03-25 01:54:03.699713
+Return the best model...
+
+R squared:  0.82 (Rp =  0.906, Rs =  0.864)
+
+
+Training with CV group 3 out of 10, replicate 3 out of 5	5047s passed...	2025-03-25 02:00:05.391638
+Return the best model...
+
+R squared:  0.82 (Rp =  0.906, Rs =  0.861)
+
+
+Training with CV group 3 out of 10, replicate 4 out of 5	5390s passed...	2025-03-25 02:05:48.178986
+Return the best model...
+
+R squared:  0.83 (Rp =  0.909, Rs =  0.860)
+
+
+Training with CV group 3 out of 10, replicate 5 out of 5	5740s passed...	2025-03-25 02:11:38.594225
+Return the best model...
+
+R squared:  0.82 (Rp =  0.908, Rs =  0.857)
+
+
+Training with CV group 4 out of 10, replicate 1 out of 5	6069s passed...	2025-03-25 02:17:07.752685
+Return the best model...
+
+R squared:  0.81 (Rp =  0.900, Rs =  0.861)
+
+
+Training with CV group 4 out of 10, replicate 2 out of 5	6460s passed...	2025-03-25 02:23:38.951768
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.854)
+
+
+Training with CV group 4 out of 10, replicate 3 out of 5	6691s passed...	2025-03-25 02:27:29.639476
+Return the best model...
+
+R squared:  0.82 (Rp =  0.906, Rs =  0.866)
+
+
+Training with CV group 4 out of 10, replicate 4 out of 5	7216s passed...	2025-03-25 02:36:14.111556
+Return the best model...
+
+R squared:  0.82 (Rp =  0.905, Rs =  0.857)
+
+
+Training with CV group 4 out of 10, replicate 5 out of 5	7561s passed...	2025-03-25 02:41:59.255391
+Return the best model...
+
+R squared:  0.82 (Rp =  0.906, Rs =  0.865)
+
+
+Training with CV group 5 out of 10, replicate 1 out of 5	8047s passed...	2025-03-25 02:50:05.443061
+Return the best model...
+
+R squared:  0.81 (Rp =  0.899, Rs =  0.855)
+
+
+Training with CV group 5 out of 10, replicate 2 out of 5	8298s passed...	2025-03-25 02:54:16.894855
+Return the best model...
+
+R squared:  0.81 (Rp =  0.898, Rs =  0.858)
+
+
+Training with CV group 5 out of 10, replicate 3 out of 5	8653s passed...	2025-03-25 03:00:11.748480
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.859)
+
+
+Training with CV group 5 out of 10, replicate 4 out of 5	9081s passed...	2025-03-25 03:07:20.009361
+Return the best model...
+
+R squared:  0.81 (Rp =  0.900, Rs =  0.858)
+
+
+Training with CV group 5 out of 10, replicate 5 out of 5	9362s passed...	2025-03-25 03:12:00.528528
+Return the best model...
+
+R squared:  0.81 (Rp =  0.899, Rs =  0.860)
+
+
+Training with CV group 6 out of 10, replicate 1 out of 5	9712s passed...	2025-03-25 03:17:50.384509
+Return the best model...
+
+R squared:  0.81 (Rp =  0.898, Rs =  0.863)
+
+
+Training with CV group 6 out of 10, replicate 2 out of 5	10195s passed...	2025-03-25 03:25:54.006544
+Return the best model...
+
+R squared:  0.80 (Rp =  0.896, Rs =  0.861)
+
+
+Training with CV group 6 out of 10, replicate 3 out of 5	10532s passed...	2025-03-25 03:31:30.552001
+Return the best model...
+
+R squared:  0.80 (Rp =  0.897, Rs =  0.865)
+
+
+Training with CV group 6 out of 10, replicate 4 out of 5	11069s passed...	2025-03-25 03:40:27.923442
+Return the best model...
+
+R squared:  0.80 (Rp =  0.895, Rs =  0.863)
+
+
+Training with CV group 6 out of 10, replicate 5 out of 5	11430s passed...	2025-03-25 03:46:28.323986
+Return the best model...
+
+R squared:  0.80 (Rp =  0.893, Rs =  0.863)
+
+
+Training with CV group 7 out of 10, replicate 1 out of 5	11804s passed...	2025-03-25 03:52:42.413474
+Return the best model...
+
+R squared:  0.81 (Rp =  0.898, Rs =  0.861)
+
+
+Training with CV group 7 out of 10, replicate 2 out of 5	12291s passed...	2025-03-25 04:00:49.300188
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.865)
+
+
+Training with CV group 7 out of 10, replicate 3 out of 5	12908s passed...	2025-03-25 04:11:06.542406
+Return the best model...
+
+R squared:  0.80 (Rp =  0.893, Rs =  0.850)
+
+
+Training with CV group 7 out of 10, replicate 4 out of 5	13136s passed...	2025-03-25 04:14:54.212889
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.863)
+
+
+Training with CV group 7 out of 10, replicate 5 out of 5	13508s passed...	2025-03-25 04:21:06.471638
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.864)
+
+
+Training with CV group 8 out of 10, replicate 1 out of 5	13947s passed...	2025-03-25 04:28:25.727239
+Return the best model...
+
+R squared:  0.80 (Rp =  0.892, Rs =  0.853)
+
+
+Training with CV group 8 out of 10, replicate 2 out of 5	14225s passed...	2025-03-25 04:33:03.426703
+Return the best model...
+
+R squared:  0.79 (Rp =  0.891, Rs =  0.852)
+
+
+Training with CV group 8 out of 10, replicate 3 out of 5	14541s passed...	2025-03-25 04:38:19.056118
+Return the best model...
+
+R squared:  0.81 (Rp =  0.898, Rs =  0.859)
+
+
+Training with CV group 8 out of 10, replicate 4 out of 5	14885s passed...	2025-03-25 04:44:03.660399
+Return the best model...
+
+R squared:  0.81 (Rp =  0.900, Rs =  0.863)
+
+
+Training with CV group 8 out of 10, replicate 5 out of 5	15371s passed...	2025-03-25 04:52:09.479403
+Return the best model...
+
+R squared:  0.79 (Rp =  0.892, Rs =  0.862)
+
+
+Training with CV group 9 out of 10, replicate 1 out of 5	15914s passed...	2025-03-25 05:01:12.405509
+Return the best model...
+
+R squared:  0.80 (Rp =  0.893, Rs =  0.862)
+
+
+Training with CV group 9 out of 10, replicate 2 out of 5	16318s passed...	2025-03-25 05:07:56.042951
+Return the best model...
+
+R squared:  0.81 (Rp =  0.899, Rs =  0.863)
+
+
+Training with CV group 9 out of 10, replicate 3 out of 5	16795s passed...	2025-03-25 05:15:53.616731
+Return the best model...
+
+R squared:  0.79 (Rp =  0.891, Rs =  0.859)
+
+
+Training with CV group 9 out of 10, replicate 4 out of 5	17178s passed...	2025-03-25 05:22:16.697480
+Return the best model...
+
+R squared:  0.80 (Rp =  0.893, Rs =  0.857)
+
+
+Training with CV group 9 out of 10, replicate 5 out of 5	17539s passed...	2025-03-25 05:28:17.968676
+Return the best model...
+
+R squared:  0.80 (Rp =  0.897, Rs =  0.866)
+
+
+Training with CV group 10 out of 10, replicate 1 out of 5	18104s passed...	2025-03-25 05:37:42.673067
+Return the best model...
+
+R squared:  0.81 (Rp =  0.901, Rs =  0.856)
+
+
+Training with CV group 10 out of 10, replicate 2 out of 5	18545s passed...	2025-03-25 05:45:03.992045
+Return the best model...
+
+R squared:  0.81 (Rp =  0.900, Rs =  0.859)
+
+
+Training with CV group 10 out of 10, replicate 3 out of 5	19014s passed...	2025-03-25 05:52:52.782971
+Return the best model...
+
+R squared:  0.80 (Rp =  0.894, Rs =  0.851)
+
+
+Training with CV group 10 out of 10, replicate 4 out of 5	19300s passed...	2025-03-25 05:57:38.927583
+Return the best model...
+
+R squared:  0.80 (Rp =  0.892, Rs =  0.846)
+
+
+Training with CV group 10 out of 10, replicate 5 out of 5	19538s passed...	2025-03-25 06:01:36.279527
+Return the best model...
+
+R squared:  0.80 (Rp =  0.897, Rs =  0.852)
+
+Finished...	19892s passed...	2025-03-25 06:07:30.316552

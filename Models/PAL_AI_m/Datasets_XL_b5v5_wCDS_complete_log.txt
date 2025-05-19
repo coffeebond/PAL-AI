@@ -1,0 +1,643 @@
+
+Input arguments:
+	i: Data/Datasets_XL_b5v5_wCDS.txt
+	md: None
+	n: minn
+	p: MINN_config.yaml
+	o: CV_MINN_XL_b5v5_L_2000_CDS
+	l: 2000
+	x: None
+	y: None
+	m: cv
+	op: 100
+
+----------------------------------------------------------------------------------------------------
+Parameters have been updated with the yaml file.
+
+Global parameters:
+	NAME: Global parameters
+	fa_string_filter: uncertain
+	flag_input_header: True
+	flag_initial_tl: False
+	input_tag_min: 50
+	seq_3end_append: AAA
+	len_max: 2000
+	len_min: 10
+	n_cpe_max: 2
+	flag_cds_track: False
+	y_mode: none
+	y_offset: 0
+	tl_cons: 35
+	test_size: 0.1
+	n_dimension: 2
+	n_rep: 5
+	flag_print_model: True
+	out_folder: CV_MINN_XL_b5v5_L_2000_CDS
+	idf: Datasets_XL_b5v5_wCDS
+	verbose: 0
+	n_threads: 20
+	chunk: 10000
+
+Neural Network parameters:
+	NAME: Neural Network parameters
+	input_shape: [1056, 5]
+	flag_initial_tl: False
+	n_group: 1
+	n_Conv1D_filter: 64
+	n_Conv1D_kernel: 4
+	n_Conv1D_MaxPool_block: 1
+	activation_func: leaky_relu
+	dropout_rate: 0.2
+	n_dense_neuron: 128
+	rnn_func: GRU
+	n_rnn_units: 128
+	l1_reg: 6.28e-05
+	l2_reg: 0.00019765
+	optimizer: adam
+	learning_rate: 0.001934
+	loss: mse
+	metrics: mae
+	batch_size: 128
+	epochs: 100
+	resnet_trim: left
+	resnet_version: 2
+	resnet_n_group: 7
+	resnet_n_block: 4
+	dilation_rate_lst: [1, 2, 4, 8, 4, 2, 1]
+	n_pool_size: 2
+	n_Conv2D_filter: 32
+	n_Conv2D_kernel: 5
+	n_Conv2D_MaxPool_block: 1
+	flag_sample_for_validation: True
+	flag_sample_for_training: True
+	val_group_lst: None
+	predict_model_index: 1
+
+----------------------------------------------------------------------------------------------------
+Detected 1 GPU cores.
+
+----------------------------------------------------------------------------------------------------
+Prepare data for analysis...
+
+Make a dictionary of input files with information from:
+Data/Datasets_XL_b5v5_wCDS.txt
+Number of groups of datasets: 2
+
+Process data for group: 1
+
+Input file with target values:Data/XL_oo_pp_7h_tail_length_change.txt
+Make a dictionary of target values...	0s passed...	2025-03-24 12:34:59.744810
+Number of total entries in the input file: 13743
+Number of entries included in the downstream analysis: 6144
+
+Global parameters (updated):
+flag_cds_track: True
+
+Input CDS file:Data/XL_cds.fa
+Make a dictionary of CDS sequences...	0s passed...	2025-03-24 12:34:59.777356
+Number of entries in the fasta file: 34695
+
+No RNA fold data is provided.	0s passed...	2025-03-24 12:35:00.453688
+
+Input UTR file:Data/XL_utr3.fa
+Read in the utr sequence file...
+10000 sequences processed...	3s passed...	2025-03-24 12:35:03.200152
+20000 sequences processed...	6s passed...	2025-03-24 12:35:06.017279
+30000 sequences processed...	9s passed...	2025-03-24 12:35:08.971674
+32376 sequences processed...	10s passed...	2025-03-24 12:35:09.845314
+Total number of sequences in the input file: 32376
+Number of sequences removed because sequences in the fasta file is uncertain: 90
+Number of sequences removed because 3'-UTR seqeunces shorter than 10: 0
+Number of sequences removed because of un-recogenized characters in the sequence: 0
+Number of 3'-UTRs with CDS sequences added to the 5' end: 5338
+Data matrix dimension, X: (6054, 2000, 5) Y: (6054, 4)
+
+Process data for group: 2
+
+Input file with target values:Data/XL_oo_b5v5_pp_7h_tail_length_change.txt
+Make a dictionary of target values...	10s passed...	2025-03-24 12:35:10.216340
+Number of total entries in the input file: 35378
+Number of entries included in the downstream analysis: 34527
+
+Global parameters (updated):
+flag_cds_track: True
+
+Input CDS file:Data/B5v5_cds.fa
+Make a dictionary of CDS sequences...	10s passed...	2025-03-24 12:35:10.290380
+Number of entries in the fasta file: 1
+
+No RNA fold data is provided.	10s passed...	2025-03-24 12:35:10.321323
+
+Input UTR file:Data/B5v5_utr3.fa
+Read in the utr sequence file...
+10000 sequences processed...	14s passed...	2025-03-24 12:35:13.883508
+20000 sequences processed...	18s passed...	2025-03-24 12:35:17.885629
+30000 sequences processed...	22s passed...	2025-03-24 12:35:22.037300
+35987 sequences processed...	24s passed...	2025-03-24 12:35:23.949850
+Total number of sequences in the input file: 35987
+Number of sequences removed because sequences in the fasta file is uncertain: 0
+Number of sequences removed because 3'-UTR seqeunces shorter than 10: 0
+Number of sequences removed because of un-recogenized characters in the sequence: 0
+Number of 3'-UTRs with CDS sequences added to the 5' end: 34527
+Data matrix dimension, X: (34527, 2000, 5) Y: (34527, 4)
+
+Group	CPE count	Number of entries
+
+0	0	959
+
+0	1	997
+
+0	2	4098
+
+1	0	26851
+
+1	1	6871
+
+1	2	805
+
+
+Data matrix dimension, X: (40581, 2000, 5) Y: (40581, 5)
+
+Neural Network parameters (updated):
+input_shape: (2000, 5)
+
+----------------------------------------------------------------------------------------------------
+Target Y contains negative values. An offset of 68 will be used if log, sqrt, or boxcox transformation is applied.
+Check the overall skewness of target values if the following tranformation is applied: 
+none: 2.151
+log: 1.172
+sqrt: 1.684
+box-cox: -0.850
+yeo-johnson: -0.879
+Type of transformation of target values: none
+
+----------------------------------------------------------------------------------------------------
+
+All groups will be used for validation monitoring after each epoch.
+
+Training and testing in a CV fold of 10...	39s passed...	2025-03-24 12:35:39.195332
+
+Training with CV group 1 out of 10, replicate 1 out of 5	40s passed...	2025-03-24 12:35:40.038776
+Model: "functional"
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)        ┃ Output Shape      ┃    Param # ┃ Connected to      ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+│ data_input          │ (None, 2000, 5)   │          0 │ -                 │
+│ (InputLayer)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ conv1d (Conv1D)     │ (None, 1997, 64)  │      1,344 │ data_input[0][0]  │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ layer_normalization │ (None, 1997, 64)  │        128 │ conv1d[0][0]      │
+│ (LayerNormalizatio… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ activation          │ (None, 1997, 64)  │          0 │ layer_normalizat… │
+│ (Activation)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ conv1d_1 (Conv1D)   │ (None, 1994, 64)  │     16,448 │ activation[0][0]  │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ layer_normalizatio… │ (None, 1994, 64)  │        128 │ conv1d_1[0][0]    │
+│ (LayerNormalizatio… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ activation_1        │ (None, 1994, 64)  │          0 │ layer_normalizat… │
+│ (Activation)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ max_pooling1d       │ (None, 997, 64)   │          0 │ activation_1[0][… │
+│ (MaxPooling1D)      │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ dropout (Dropout)   │ (None, 997, 64)   │          0 │ max_pooling1d[0]… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ GRU_activate (GRU)  │ (None, 128)       │     74,496 │ dropout[0][0]     │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ layer_normalizatio… │ (None, 128)       │        256 │ GRU_activate[0][… │
+│ (LayerNormalizatio… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ activation_2        │ (None, 128)       │          0 │ layer_normalizat… │
+│ (Activation)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ dense (Dense)       │ (None, 128)       │     16,512 │ activation_2[0][… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ dropout_dense       │ (None, 128)       │          0 │ dense[0][0]       │
+│ (Dropout)           │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ batch_nor_dense     │ (None, 128)       │        512 │ dropout_dense[0]… │
+│ (BatchNormalizatio… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ activate_dense      │ (None, 128)       │          0 │ batch_nor_dense[… │
+│ (Activation)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ output_list_0       │ (None, 1)         │        129 │ activate_dense[0… │
+│ (Dense)             │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ output_list_1       │ (None, 1)         │        129 │ activate_dense[0… │
+│ (Dense)             │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ group_input         │ (None, 1)         │          0 │ -                 │
+│ (InputLayer)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ final_output        │ (None, 1)         │          0 │ output_list_0[0]… │
+│ (CustomGatherLayer) │                   │            │ output_list_1[0]… │
+│                     │                   │            │ group_input[0][0] │
+└─────────────────────┴───────────────────┴────────────┴───────────────────┘
+ Total params: 110,082 (430.01 KB)
+ Trainable params: 109,826 (429.01 KB)
+ Non-trainable params: 256 (1.00 KB)
+
+Return the best model...
+
+R squared for data group 1:  0.55 (Rp =  0.744, Rs =  0.785)
+
+R squared for data group 2:  0.73 (Rp =  0.855, Rs =  0.792)
+
+
+Training with CV group 1 out of 10, replicate 2 out of 5	165s passed...	2025-03-24 12:37:44.707330
+Return the best model...
+
+R squared for data group 1:  0.61 (Rp =  0.782, Rs =  0.814)
+
+R squared for data group 2:  0.76 (Rp =  0.870, Rs =  0.808)
+
+
+Training with CV group 1 out of 10, replicate 3 out of 5	382s passed...	2025-03-24 12:41:21.568760
+Return the best model...
+
+R squared for data group 1:  0.60 (Rp =  0.773, Rs =  0.808)
+
+R squared for data group 2:  0.75 (Rp =  0.865, Rs =  0.810)
+
+
+Training with CV group 1 out of 10, replicate 4 out of 5	559s passed...	2025-03-24 12:44:19.257737
+Return the best model...
+
+R squared for data group 1:  0.61 (Rp =  0.779, Rs =  0.814)
+
+R squared for data group 2:  0.75 (Rp =  0.868, Rs =  0.805)
+
+
+Training with CV group 1 out of 10, replicate 5 out of 5	746s passed...	2025-03-24 12:47:25.877340
+Return the best model...
+
+R squared for data group 1:  0.57 (Rp =  0.755, Rs =  0.800)
+
+R squared for data group 2:  0.73 (Rp =  0.857, Rs =  0.801)
+
+
+Training with CV group 2 out of 10, replicate 1 out of 5	898s passed...	2025-03-24 12:49:57.543376
+Return the best model...
+
+R squared for data group 1:  0.62 (Rp =  0.790, Rs =  0.817)
+
+R squared for data group 2:  0.77 (Rp =  0.879, Rs =  0.802)
+
+
+Training with CV group 2 out of 10, replicate 2 out of 5	1039s passed...	2025-03-24 12:52:18.999166
+Return the best model...
+
+R squared for data group 1:  0.63 (Rp =  0.791, Rs =  0.817)
+
+R squared for data group 2:  0.75 (Rp =  0.868, Rs =  0.782)
+
+
+Training with CV group 2 out of 10, replicate 3 out of 5	1155s passed...	2025-03-24 12:54:15.319199
+Return the best model...
+
+R squared for data group 1:  0.58 (Rp =  0.763, Rs =  0.795)
+
+R squared for data group 2:  0.77 (Rp =  0.877, Rs =  0.815)
+
+
+Training with CV group 2 out of 10, replicate 4 out of 5	1394s passed...	2025-03-24 12:58:13.727508
+Return the best model...
+
+R squared for data group 1:  0.60 (Rp =  0.774, Rs =  0.816)
+
+R squared for data group 2:  0.76 (Rp =  0.873, Rs =  0.793)
+
+
+Training with CV group 2 out of 10, replicate 5 out of 5	1521s passed...	2025-03-24 13:00:21.492729
+Return the best model...
+
+R squared for data group 1:  0.57 (Rp =  0.753, Rs =  0.788)
+
+R squared for data group 2:  0.76 (Rp =  0.873, Rs =  0.800)
+
+
+Training with CV group 3 out of 10, replicate 1 out of 5	1648s passed...	2025-03-24 13:02:27.628801
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.805, Rs =  0.789)
+
+R squared for data group 2:  0.78 (Rp =  0.881, Rs =  0.813)
+
+
+Training with CV group 3 out of 10, replicate 2 out of 5	1820s passed...	2025-03-24 13:05:20.117377
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.809, Rs =  0.803)
+
+R squared for data group 2:  0.79 (Rp =  0.891, Rs =  0.821)
+
+
+Training with CV group 3 out of 10, replicate 3 out of 5	2035s passed...	2025-03-24 13:08:55.180885
+Return the best model...
+
+R squared for data group 1:  0.68 (Rp =  0.824, Rs =  0.804)
+
+R squared for data group 2:  0.77 (Rp =  0.880, Rs =  0.815)
+
+
+Training with CV group 3 out of 10, replicate 4 out of 5	2223s passed...	2025-03-24 13:12:03.181507
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.820, Rs =  0.800)
+
+R squared for data group 2:  0.79 (Rp =  0.889, Rs =  0.822)
+
+
+Training with CV group 3 out of 10, replicate 5 out of 5	2446s passed...	2025-03-24 13:15:45.850117
+Return the best model...
+
+R squared for data group 1:  0.68 (Rp =  0.822, Rs =  0.805)
+
+R squared for data group 2:  0.77 (Rp =  0.879, Rs =  0.812)
+
+
+Training with CV group 4 out of 10, replicate 1 out of 5	2588s passed...	2025-03-24 13:18:07.877952
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.809, Rs =  0.818)
+
+R squared for data group 2:  0.78 (Rp =  0.880, Rs =  0.817)
+
+
+Training with CV group 4 out of 10, replicate 2 out of 5	2767s passed...	2025-03-24 13:21:06.967453
+Return the best model...
+
+R squared for data group 1:  0.63 (Rp =  0.796, Rs =  0.799)
+
+R squared for data group 2:  0.77 (Rp =  0.878, Rs =  0.817)
+
+
+Training with CV group 4 out of 10, replicate 3 out of 5	2929s passed...	2025-03-24 13:23:48.922263
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.817, Rs =  0.813)
+
+R squared for data group 2:  0.77 (Rp =  0.878, Rs =  0.811)
+
+
+Training with CV group 4 out of 10, replicate 4 out of 5	3060s passed...	2025-03-24 13:25:59.960860
+Return the best model...
+
+R squared for data group 1:  0.66 (Rp =  0.814, Rs =  0.814)
+
+R squared for data group 2:  0.76 (Rp =  0.874, Rs =  0.805)
+
+
+Training with CV group 4 out of 10, replicate 5 out of 5	3218s passed...	2025-03-24 13:28:38.385932
+Return the best model...
+
+R squared for data group 1:  0.68 (Rp =  0.823, Rs =  0.824)
+
+R squared for data group 2:  0.78 (Rp =  0.884, Rs =  0.826)
+
+
+Training with CV group 5 out of 10, replicate 1 out of 5	3412s passed...	2025-03-24 13:31:51.759561
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.804, Rs =  0.770)
+
+R squared for data group 2:  0.73 (Rp =  0.857, Rs =  0.803)
+
+
+Training with CV group 5 out of 10, replicate 2 out of 5	3535s passed...	2025-03-24 13:33:54.800181
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.819, Rs =  0.791)
+
+R squared for data group 2:  0.76 (Rp =  0.869, Rs =  0.815)
+
+
+Training with CV group 5 out of 10, replicate 3 out of 5	3676s passed...	2025-03-24 13:36:16.461204
+Return the best model...
+
+R squared for data group 1:  0.66 (Rp =  0.810, Rs =  0.803)
+
+R squared for data group 2:  0.74 (Rp =  0.861, Rs =  0.816)
+
+
+Training with CV group 5 out of 10, replicate 4 out of 5	3849s passed...	2025-03-24 13:39:09.390441
+Return the best model...
+
+R squared for data group 1:  0.66 (Rp =  0.815, Rs =  0.790)
+
+R squared for data group 2:  0.76 (Rp =  0.869, Rs =  0.819)
+
+
+Training with CV group 5 out of 10, replicate 5 out of 5	4032s passed...	2025-03-24 13:42:12.414160
+Return the best model...
+
+R squared for data group 1:  0.62 (Rp =  0.785, Rs =  0.778)
+
+R squared for data group 2:  0.71 (Rp =  0.843, Rs =  0.783)
+
+
+Training with CV group 6 out of 10, replicate 1 out of 5	4138s passed...	2025-03-24 13:43:58.135519
+Return the best model...
+
+R squared for data group 1:  0.62 (Rp =  0.788, Rs =  0.808)
+
+R squared for data group 2:  0.77 (Rp =  0.875, Rs =  0.814)
+
+
+Training with CV group 6 out of 10, replicate 2 out of 5	4295s passed...	2025-03-24 13:46:35.083842
+Return the best model...
+
+R squared for data group 1:  0.66 (Rp =  0.815, Rs =  0.813)
+
+R squared for data group 2:  0.77 (Rp =  0.877, Rs =  0.813)
+
+
+Training with CV group 6 out of 10, replicate 3 out of 5	4444s passed...	2025-03-24 13:49:03.529409
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.809, Rs =  0.814)
+
+R squared for data group 2:  0.77 (Rp =  0.876, Rs =  0.798)
+
+
+Training with CV group 6 out of 10, replicate 4 out of 5	4589s passed...	2025-03-24 13:51:28.808034
+Return the best model...
+
+R squared for data group 1:  0.63 (Rp =  0.795, Rs =  0.808)
+
+R squared for data group 2:  0.77 (Rp =  0.875, Rs =  0.805)
+
+
+Training with CV group 6 out of 10, replicate 5 out of 5	4721s passed...	2025-03-24 13:53:40.756514
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.804, Rs =  0.813)
+
+R squared for data group 2:  0.77 (Rp =  0.876, Rs =  0.814)
+
+
+Training with CV group 7 out of 10, replicate 1 out of 5	4892s passed...	2025-03-24 13:56:31.747314
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.821, Rs =  0.791)
+
+R squared for data group 2:  0.78 (Rp =  0.882, Rs =  0.817)
+
+
+Training with CV group 7 out of 10, replicate 2 out of 5	5074s passed...	2025-03-24 13:59:33.946636
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.816, Rs =  0.785)
+
+R squared for data group 2:  0.75 (Rp =  0.865, Rs =  0.803)
+
+
+Training with CV group 7 out of 10, replicate 3 out of 5	5217s passed...	2025-03-24 14:01:56.738107
+Return the best model...
+
+R squared for data group 1:  0.70 (Rp =  0.836, Rs =  0.795)
+
+R squared for data group 2:  0.77 (Rp =  0.877, Rs =  0.804)
+
+
+Training with CV group 7 out of 10, replicate 4 out of 5	5361s passed...	2025-03-24 14:04:20.526575
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.820, Rs =  0.792)
+
+R squared for data group 2:  0.78 (Rp =  0.883, Rs =  0.821)
+
+
+Training with CV group 7 out of 10, replicate 5 out of 5	5554s passed...	2025-03-24 14:07:34.472788
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.819, Rs =  0.792)
+
+R squared for data group 2:  0.77 (Rp =  0.877, Rs =  0.813)
+
+
+Training with CV group 8 out of 10, replicate 1 out of 5	5736s passed...	2025-03-24 14:10:36.317160
+Return the best model...
+
+R squared for data group 1:  0.59 (Rp =  0.766, Rs =  0.804)
+
+R squared for data group 2:  0.77 (Rp =  0.876, Rs =  0.820)
+
+
+Training with CV group 8 out of 10, replicate 2 out of 5	5940s passed...	2025-03-24 14:14:00.027773
+Return the best model...
+
+R squared for data group 1:  0.61 (Rp =  0.782, Rs =  0.812)
+
+R squared for data group 2:  0.76 (Rp =  0.874, Rs =  0.809)
+
+
+Training with CV group 8 out of 10, replicate 3 out of 5	6077s passed...	2025-03-24 14:16:17.077921
+Return the best model...
+
+R squared for data group 1:  0.56 (Rp =  0.749, Rs =  0.790)
+
+R squared for data group 2:  0.75 (Rp =  0.866, Rs =  0.807)
+
+
+Training with CV group 8 out of 10, replicate 4 out of 5	6215s passed...	2025-03-24 14:18:34.931522
+Return the best model...
+
+R squared for data group 1:  0.61 (Rp =  0.784, Rs =  0.819)
+
+R squared for data group 2:  0.75 (Rp =  0.864, Rs =  0.803)
+
+
+Training with CV group 8 out of 10, replicate 5 out of 5	6343s passed...	2025-03-24 14:20:43.304302
+Return the best model...
+
+R squared for data group 1:  0.60 (Rp =  0.776, Rs =  0.820)
+
+R squared for data group 2:  0.76 (Rp =  0.873, Rs =  0.812)
+
+
+Training with CV group 9 out of 10, replicate 1 out of 5	6515s passed...	2025-03-24 14:23:35.497428
+Return the best model...
+
+R squared for data group 1:  0.66 (Rp =  0.810, Rs =  0.810)
+
+R squared for data group 2:  0.75 (Rp =  0.867, Rs =  0.816)
+
+
+Training with CV group 9 out of 10, replicate 2 out of 5	6647s passed...	2025-03-24 14:25:46.905908
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.808, Rs =  0.803)
+
+R squared for data group 2:  0.78 (Rp =  0.884, Rs =  0.830)
+
+
+Training with CV group 9 out of 10, replicate 3 out of 5	6850s passed...	2025-03-24 14:29:09.726785
+Return the best model...
+
+R squared for data group 1:  0.67 (Rp =  0.817, Rs =  0.815)
+
+R squared for data group 2:  0.78 (Rp =  0.881, Rs =  0.814)
+
+
+Training with CV group 9 out of 10, replicate 4 out of 5	7055s passed...	2025-03-24 14:32:34.621449
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.805, Rs =  0.802)
+
+R squared for data group 2:  0.77 (Rp =  0.875, Rs =  0.820)
+
+
+Training with CV group 9 out of 10, replicate 5 out of 5	7229s passed...	2025-03-24 14:35:29.162880
+Return the best model...
+
+R squared for data group 1:  0.63 (Rp =  0.793, Rs =  0.794)
+
+R squared for data group 2:  0.76 (Rp =  0.871, Rs =  0.802)
+
+
+Training with CV group 10 out of 10, replicate 1 out of 5	7372s passed...	2025-03-24 14:37:51.706236
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.806, Rs =  0.817)
+
+R squared for data group 2:  0.76 (Rp =  0.871, Rs =  0.821)
+
+
+Training with CV group 10 out of 10, replicate 2 out of 5	7522s passed...	2025-03-24 14:40:22.216920
+Return the best model...
+
+R squared for data group 1:  0.65 (Rp =  0.803, Rs =  0.820)
+
+R squared for data group 2:  0.78 (Rp =  0.883, Rs =  0.832)
+
+
+Training with CV group 10 out of 10, replicate 3 out of 5	7743s passed...	2025-03-24 14:44:02.573927
+Return the best model...
+
+R squared for data group 1:  0.64 (Rp =  0.802, Rs =  0.820)
+
+R squared for data group 2:  0.75 (Rp =  0.865, Rs =  0.825)
+
+
+Training with CV group 10 out of 10, replicate 4 out of 5	7916s passed...	2025-03-24 14:46:55.654404
+Return the best model...
+
+R squared for data group 1:  0.64 (Rp =  0.803, Rs =  0.816)
+
+R squared for data group 2:  0.76 (Rp =  0.869, Rs =  0.821)
+
+
+Training with CV group 10 out of 10, replicate 5 out of 5	8094s passed...	2025-03-24 14:49:53.607533
+Return the best model...
+
+R squared for data group 1:  0.66 (Rp =  0.814, Rs =  0.815)
+
+R squared for data group 2:  0.77 (Rp =  0.878, Rs =  0.827)
+
+Finished...	8280s passed...	2025-03-24 14:52:59.730063
