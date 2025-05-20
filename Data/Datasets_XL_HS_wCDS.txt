@@ -1,7 +1,0 @@
-group	type	file
-1	y	Data/XL_oo_pp_7h_tail_length_change.txt
-1	x_utr	Data/XL_utr3.fa
-1	x_cds	Data/XL_cds.fa
-2	y	Data/HS_oo_MII_vs_GV_tail_length_change.txt
-2	x_utr	Data/HS_utr3.fa
-2	x_cds	Data/HS_cds.fa

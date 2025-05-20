@@ -11,7 +11,7 @@ pip install virtualenv
 2.  Create a virtual environment.
 
 ```         
-virtualenv PAL_AI_env --python=python3.8
+virtualenv PAL_AI_env --python=python3.11
 ```
 
 3.  Activate the environment and install required packages listed in the `PAL_AI_environment.txt` file.
@@ -26,13 +26,31 @@ Once installed, the virtual environment can be activated by
 ```         
 source PAL_AI_env/bin/activate
 ```
+## System requirements
+PAL-AI has been tested on a Linux machine running on Ubuntu 20.04.
+
+- Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz (4 cores)
+- 128 GB memory
+- GeForce RTX 2080 Ti
+
+Although a GPU is not required, it is highly recommanded. Usually, running PAL-AI on a GPU is 5–100 times faster than using CPUs. 
+
+Runtime varies depending on parameter settings, data sizes, and system configurations. A summary of runtime for the examples shown in this instruction on the aforementioned machine:
+| Mode    | Model    | Runtime     |
+| ------- | -------- | ----------- |
+| cv      | PAL-AI-s | 1 hr 40 min |
+| cv      | PAL-AI-m | 4 hr        |
+| predict | PAL-AI-s | 31 sec      |
+| predict | PAL-AI-m | 33 sec      |
+| opti    | PAL-AI-s | 67 hr       |
+| opti    | PAL-AI-m | 100 hr      |
 
 ## PAL-AI-s versus PAL-AI-m
 **PAL-AI-s** is the original PAL-AI, which can be trained with a single dataset and predict poly(A) tail-length changes from mRNA sequences.
 
 **PAL-AI-m** can be trained with multiple datasets, with dataset-specific output heads. This allows the model to learn common features of different datasets, while making dataset-specific predictions.
 
-### Input options
+## Input options
 
 #### options shared by PAL-AI-s and PAL-AI-m
 - `-p`: A YAML file for updating parameters (examples provided in `INN_config.yaml` and `MINN_config.yaml`, for **PAL-AI-s** and **PAL-AI-m**, respectively). Note that some parameters can also be updated using options passed through the python script (as specified below), and in such cases, values of these parameters, either default or defined in the YAML file, will be **overwritten by the input options**.
@@ -73,7 +91,7 @@ python -u INN_main.py \
             -u Data/XL_utr3.fa \
             -c Data/XL_cds.fa \
             -p INN_config.yaml  \
-            -o Output \
+            -o CV_output/PAL_AI_s \
             -l 2000 \
             -m cv 
 ```
@@ -85,7 +103,7 @@ An example run can be performed using the provided data in the `Data` folder as 
 python -u INN_minn.py \
             -i Data/Datasets_XL_HS_MM_wCDS.txt \
             -p MINN_config.yaml \
-            -o Output \
+            -o CV_output/PAL_AI_m \
             -l 2000 \
             -m cv
 
@@ -129,7 +147,7 @@ python -u INN_main.py \
             -c Data/XL_F044_cds.fa \
             -p INN_config.yaml \
             -o Predictions/XL_F044/PAL_AI_s_frog_mRNAs \
-            -l 2000
+            -l 2000 \
             -m predict \
             -md Models/PAL_AI_s_frog_mRNAs
 ```
@@ -154,8 +172,12 @@ The following files will be generated in the output:
     1. Converted input matrices in `.npy` format
     2. Target values and associated labels in a `.csv` file 
 2. Under `Predictions` folder:
-    1. A text file with predicted values from all models 
-    2. A text file with ensemble-averaged predicted values (from all models)
+    1. A text file with predicted values from all models (one column per model)
+    2. A text file with ensemble-averaged predicted values (from all models) with the following columns:
+        1. `id`: unique ID for each mRNA isoform
+        2. `y`: target values (measured) for predictions, only if provided in the input 
+        3. `y_pred`: model-predicted values
+        4. `label`: group labels for data stratification
 3. Under `Scatter_plots` folder:
     - A scatter plot comparing measured and predicted values (only if target values are provided in the input)
 4. A log file reporting information about the run
@@ -176,8 +198,8 @@ python -u INN_main.py \
             -u Data/XL_utr3.fa \
             -c Data/XL_cds.fa \
             -p INN_config.yaml \
-            -o Optimizations \
-            -l 2000 
+            -o Optimizations/PAL_AI_s \
+            -l 2000 \
             -m opti \
             -op 1000
 ```
@@ -189,7 +211,7 @@ An example run can be performed using the provided data in the `Data` folder as 
 python -u INN_minn.py \
             -i Data/Datasets_XL_HS_MM_wCDS.txt \
             -p MINN_config.yaml \
-            -o Optimizations \
+            -o Optimizations/PAL_AI_m \
             -l 2000 \
             -m opti \
             -op 1000
@@ -215,5 +237,21 @@ The following files will be generated in the output:
 6. Under `Density_plots` folder:
     - Density plots showing distributions of the target values before and after transformations
 7. A log file reporting information about the run
+
+## Pre-trained models
+The following pre-trained models are provided in the `Models` folder.
+1. **PAL-AI-s** trained with **frog endogenous mRNAs**: `PAL_AI_s_frog_mRNAs`
+2. **PAL-AI-s** trained with **N60(LC)-PAS<sup>_mos_</sup>** mRNA library: `PAL-AI_s_N60_LC_PASmos`
+3. **PAL-AI-m** trained with **frog endogenous mRNAs** (output head 1) and **N60(LC)-PAS<sup>_mos_</sup>** mRNA library (output head 2): `PAL_AI_m`
+4. **PAL-AI-ms** trained with endogenous mRNAs from **frog** (output head 1), **human** (output head 2), and **mouse** (output head 3) oocytes: `PAL_AI_ms`
+
+## Configuring PAL-AI with the YAML file
+PAL-AI can be configured with the following parameters in the YAML file (`-p` option):
+#### Global parameters (`global_config`)
+- `fa_string_filter`: A string. In the FASTA file (3' UTR), all entries with header containing this string will be excluded. This is used to filtered out low confiendent 3'-UTR annotations.
+- `flag_input_header`: Boolean. If `True`, the first line of the input file containing target values will be skipped.
+- `flag_initial_tl`: Boolean. If `True`, the model will incorporate initial tail lengths in the input. If a file containing initial tail lengths is provided (by `-i` option for **PAL-AI-s** or in the input file specified by `-i` for **PAL-AI-m**). This parameter will be set to `True`. 
+
+
 
 

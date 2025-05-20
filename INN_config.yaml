@@ -24,22 +24,22 @@ inn_params:
   input_shape: [1056, 5]
   flag_initial_tl: false
   n_Conv1D_filter: 64
-  n_Conv1D_kernel: 6
-  n_Conv1D_MaxPool_block: 1  
+  n_Conv1D_kernel: 5
+  n_Conv1D_MaxPool_block: 1
   n_pool_size: 2
   activation_func: 'leaky_relu'
   dropout_rate: 0.3
-  n_dense_neuron: 96
-  rnn_func: 'BiGRU'
-  n_rnn_units: 128
-  l1_reg: 0.00001746
-  l2_reg: 0.001247
+  n_dense_neuron: 64
+  rnn_func: 'GRU'
+  n_rnn_units: 96
+  l1_reg: 0.001
+  l2_reg: 0.0045
   optimizer: 'adam'
-  learning_rate: 0.001282
+  learning_rate: 0.003
   loss: 'mse'
   metrics: 'mae'
-  batch_size: 64
-  epochs: 100
+  batch_size: 128
+  epochs: 40
   resnet_trim: 'left'
   resnet_version: 2
   resnet_n_group: 7
@@ -58,7 +58,7 @@ inn_params_opti:
   n_Conv2D_MaxPool_block: [1]
   n_dense_neuron: [32, 64, 96, 128]
   n_pool_size: [2]
-  rnn_func: ['BiGRU']
+  rnn_func: ['GRU']
   n_rnn_units: [32, 64, 96, 128]
   resnet_version: [2]
   resnet_n_group: [7] 

@@ -7,10 +7,10 @@ global_config:
   len_max: 2000
   len_min: 10
   n_cpe_max: 4
-  y_mode: 'yeo-johnson'
+  y_mode: 'none'
   y_offset: 0
   tl_cons: 35
-  test_size: 0.2
+  test_size: 0.1
   n_dimension: 2
   n_rep: 5
   flag_print_model: True
@@ -23,21 +23,21 @@ global_config:
 inn_params:
   input_shape: [1056, 5]
   flag_initial_tl: false
-  n_Conv1D_filter: 96
-  n_Conv1D_kernel: 4
-  n_Conv1D_MaxPool_block: 1
+  n_Conv1D_filter: 64
+  n_Conv1D_kernel: 5
+  n_Conv1D_MaxPool_block: 2
   n_pool_size: 2
   activation_func: 'leaky_relu'
-  dropout_rate: 0.1
+  dropout_rate: 0.2
   n_dense_neuron: 128
   rnn_func: 'GRU'
   n_rnn_units: 128
-  l1_reg: 6.47E-05
-  l2_reg: 3.34E-05
+  l1_reg: 4.3E-06
+  l2_reg: 0.00344
   optimizer: 'adam'
-  learning_rate: 0.0004938
-  loss: 'mse'
-  metrics: 'mae'
+  learning_rate: 0.00068
+  loss: 'mae'
+  metrics: 'mse'
   batch_size: 32
   epochs: 100
   flag_sample_for_validation: True

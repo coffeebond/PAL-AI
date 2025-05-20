@@ -1,3 +1,0 @@
-group	type	file
-1	x_utr	Data/HS_utr3.fa
-1	x_cds	Data/HS_cds.fa
