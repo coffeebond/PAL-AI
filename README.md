@@ -246,7 +246,7 @@ python -u INN_main.py \
 
 A text file (specified by `-i`) containing information about dataset-specific input files must be provided.
 
-An example run can be performed using the provided data in the `Data` folder as below:
+An example run can be performed using the provided data in the `Data` folder as below (unzip `HS_cds.fa.gz` file first):
 
 ```         
 python -u INN_minn.py \
