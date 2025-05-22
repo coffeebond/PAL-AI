@@ -16,7 +16,8 @@
 - [Configuration](#configuring-pal-ai-with-the-yaml-file)  
   - [Global Parameters](#global-parameters-global_config)  
   - [Model Parameters](#model-parameters-inn_params)  
-  - [Optimization Parameters](#parameters-for-optimization-inn_params_opti)  
+  - [Optimization Parameters](#parameters-for-optimization-inn_params_opti)
+- [Data Information](#data-information)  
 - [Citation]($citation)
 
 ---
@@ -448,6 +449,13 @@ These parameters define the hyperparameter search space for architecture and tra
 - `batch_size`: *List[Int]* — Batch sizes to sample from.
 - `epochs`: *List[Int]* — Number of training epochs to sample from.
 
+
+---
+
+## Data information
+A summary of provided data files can be found here:
+
+```Data_summary.xlsx```
 
 ---
 
