@@ -18,7 +18,7 @@
   - [Model Parameters](#model-parameters-inn_params)  
   - [Optimization Parameters](#parameters-for-optimization-inn_params_opti)
 - [Data Information](#data-information)  
-- [Citation]($citation)
+- [Citation](#citation)
 
 ---
 
