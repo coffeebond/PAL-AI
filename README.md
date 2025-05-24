@@ -1,6 +1,10 @@
 # PAL-AI
 **Predicts poly(A) tail-length changes during oocyte maturation from mRNA sequences using integrated neural networks.**
 
+<p align="center">
+  <img src="./Assets/PAL-AI.png" alt="PAL-AI" width="500">
+</p>
+
 ---
 
 ## Table of Contents
