@@ -467,4 +467,5 @@ A summary of provided data files can be found here:
 
 If you use PAL-AI in your research, please cite:
 
-Xiang & Bartel, bioRxiv, 2025 [https://doi.org/10.1101/2024.10.29.620940]
+Xiang, K., Bartel, D.P. PAL-AI reveals genetic determinants that control poly(A)-tail length during oocyte maturation, with relevance to human fertility. Nat Commun 16, 7079 (2025). [https://doi.org/10.1038/s41467-025-62171-5]
+

@@ -73,7 +73,6 @@ def fasta_to_dict(file, string_filter = None, key_parser_sep = '\t', key_parser_
 	temp_seq = ''
 	current_id = None
 	with open(file, 'r') as f:
-		flag_seq_append = False
 		while(True):
 			line = f.readline()
 			if line:
