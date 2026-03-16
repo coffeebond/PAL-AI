@@ -143,7 +143,7 @@ def target_transform(x, method = 'none', offset = 0, transformer=None, constant 
 	# it returns the transformed values and the transformer (None value if not applicable)
 	# if method is 'boxcox' or 'yeo-johnson' and 'inverse' is False, it fits and transforms if 'tf' is not provided, or it only transforms if 'tf' is provided 
 	# if method is 'boxcox' or 'yeo-johnson' and 'inverse' is True, a fitted transformer must be provided to 'tf'
-	x = np.asarray(x)
+	x = np.array(x)
 	flag_1d = (x.ndim == 1)
 	
 	if method == 'diff':
