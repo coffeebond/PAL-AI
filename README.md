@@ -457,15 +457,15 @@ These parameters define the hyperparameter search space for architecture and tra
 ---
 
 ## Data information
-A summary of provided data files can be found here:
+A summary of provided data files can be found in the summary file included:
 
-```Data_summary.xlsx```
+`Data_summary.xlsx`
 
 ---
 
 ## Citation
 
-If you use PAL-AI in your research, please cite:
+If you use PAL-AI in your research, please cite:  
 
-Xiang, K., Bartel, D.P. PAL-AI reveals genetic determinants that control poly(A)-tail length during oocyte maturation, with relevance to human fertility. Nat Commun 16, 7079 (2025). [https://doi.org/10.1038/s41467-025-62171-5]
+[Xiang, K., Bartel, D.P. PAL-AI reveals genetic determinants that control poly(A)-tail length during oocyte maturation, with relevance to human fertility. ***Nat Commun*** 16, 7079 (2025).](https://doi.org/10.1038/s41467-025-62171-5)
 
